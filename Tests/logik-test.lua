@@ -440,5 +440,100 @@ pruefeWahr("veraltete Interface-Nummer gibt einen Hinweis",
 StatKompassDB = nil
 
 -- =========================================================================
+print("\n=== 14. Gepflegte Daten: Form und Eindeutigkeit ===")
+-- Diese Pruefungen richten sich nicht gegen die Logik, sondern gegen die
+-- Tabelle in Daten/Breakpoints.lua. Sie fangen genau die Fehler ab, die beim
+-- Nachtragen von Hand passieren und im Spiel STILL bleiben: eine doppelte id
+-- (der zweite Eintrag verschluckt den ersten beim Zusammenfuehren), ein
+-- Tippfehler im Wert-Namen oder eine Schwelle, die sich nicht ausrechnen
+-- laesst.
+
+-- --- specNamen ----------------------------------------------------------
+local namen = SK.Eingebaut.specNamen
+pruefeWahr("specNamen: Sammeleintrag * vorhanden", namen["*"] ~= nil)
+
+local anzahlSpecs = 0
+for schluessel in pairs(namen) do
+    if schluessel ~= "*" then anzahlSpecs = anzahlSpecs + 1 end
+end
+pruefe("specNamen: alle 39 Spezialisierungen", anzahlSpecs, 39)
+
+-- Stichproben ueber die Klassen hinweg. Faellt eine ID beim Abtippen um eine
+-- Stelle daneben, faellt es hier auf und nicht erst im Spiel.
+pruefeWahr("specNamen: 63 ist Feuer",           namen[63]   == "Feuer",           tostring(namen[63]))
+pruefeWahr("specNamen: 254 ist Treffsicherheit", namen[254] == "Treffsicherheit", tostring(namen[254]))
+pruefeWahr("specNamen: 1473 ist Augmentation",  namen[1473] == "Augmentation",    tostring(namen[1473]))
+pruefeWahr("specNamen: 66 ist Schutz",          namen[66]   == "Schutz",          tostring(namen[66]))
+
+-- --- Breakpoint-Eintraege ------------------------------------------------
+local gueltigeWerte = { crit = true, haste = true, mastery = true, versatility = true }
+local gesehen  = {}          -- id -> wo sie zuerst stand
+local doppelte = {}
+local anzahlEintraege = 0
+local formfehler = {}
+
+for spec, eintraege in pairs(SK.Eingebaut.breakpoints) do
+    for _, e in ipairs(eintraege) do
+        anzahlEintraege = anzahlEintraege + 1
+        local wo = tostring(spec) .. "/" .. tostring(e.id or e.titel)
+
+        if not e.id then
+            table.insert(formfehler, wo .. ": keine id")
+        elseif gesehen[e.id] then
+            table.insert(doppelte, e.id .. " (" .. gesehen[e.id] .. " und " .. wo .. ")")
+        else
+            gesehen[e.id] = wo
+        end
+
+        if not gueltigeWerte[e.stat] then
+            table.insert(formfehler, wo .. ": unbekannter Wert " .. tostring(e.stat))
+        end
+        if not e.titel or e.titel == "" then
+            table.insert(formfehler, wo .. ": kein Titel")
+        end
+        -- Genau eine Schwelle, nicht beide und nicht keine.
+        if (e.rating == nil) == (e.prozent == nil) then
+            table.insert(formfehler, wo .. ": braucht genau eines von rating/prozent")
+        end
+        -- Ohne Quelle weiss beim naechsten Patch niemand mehr, woher die Zahl
+        -- stammt - und dann bleibt sie ungeprueft stehen.
+        if not e.quelle or e.quelle == "" then
+            table.insert(formfehler, wo .. ": keine Quelle angegeben")
+        end
+        -- Jede Schwelle muss sich in ein Rating aufloesen lassen.
+        local ziel = SK.Rechner.ZielRating(e)
+        if type(ziel) ~= "number" or ziel <= 0 then
+            table.insert(formfehler, wo .. ": Schwelle loest nicht auf")
+        end
+    end
+end
+
+pruefeWahr("Breakpoints: Eintraege vorhanden", anzahlEintraege > 0, "gefunden: " .. anzahlEintraege)
+pruefeWahr("Breakpoints: keine doppelte id", #doppelte == 0, table.concat(doppelte, "; "))
+pruefeWahr("Breakpoints: Form ueberall vollstaendig", #formfehler == 0, table.concat(formfehler, "; "))
+
+-- Der Schutz-Paladin ist der einzige Eintrag mit einer Meisterschaftsschwelle
+-- als rohem Rating - eine Stichprobe darauf, dass rating-Schwellen unveraendert
+-- durchgereicht werden.
+local pala = SK.Daten.Breakpoints(66)
+local zauberblock
+for _, e in ipairs(pala) do
+    if e.id == "pala-schutz-zauberblock" then zauberblock = e end
+end
+pruefeWahr("Schutz-Paladin: Zauberblock-Eintrag vorhanden", zauberblock ~= nil)
+if zauberblock then
+    pruefe("und loest auf sein rohes Rating auf", SK.Rechner.ZielRating(zauberblock), 2726)
+end
+
+-- Die Sammeleintraege unter "*" muessen bei JEDER Spezialisierung mitkommen,
+-- auch bei einer, fuer die nichts gepflegt ist.
+local ohneEigene = SK.Daten.Breakpoints(64)   -- 64 = Frost-Magier, keine eigenen
+local hatGcd = false
+for _, e in ipairs(ohneEigene) do
+    if e.id == "gcd-min" then hatGcd = true end
+end
+pruefeWahr("Spec ohne eigene Eintraege bekommt trotzdem die allgemeinen", hatGcd)
+
+-- =========================================================================
 print(string.format("\n=== ERGEBNIS: %d bestanden, %d fehlgeschlagen ===\n", bestanden, fehlgeschlagen))
 os.exit(fehlgeschlagen == 0 and 0 or 1)

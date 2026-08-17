@@ -2,6 +2,66 @@
 
 Alle nennenswerten Änderungen an Stat-Kompass. Neueste zuerst.
 
+## 1.2.0 – 18.08.2026
+
+Datenpflege zum Start von **Midnight Season 2** (Patch 12.1 ist seit dem
+11.08.2026 live, die Saison beginnt mit dem Reset am 19.08.).
+
+### Neu
+
+- **Alle 39 Spezialisierungen sind namentlich hinterlegt.** `specNamen` enthielt
+  bisher nur den Sammeleintrag. Die Tabelle ist der Rückfall für die Anzeige,
+  wenn die Schnittstelle keinen Namen liefert.
+
+- **Spezialisierungs-Breakpoints für Patch 12.1.** Alle 39 Spezialisierungen
+  wurden gegen die Icy-Veins-Stat-Priority-Guides abgefragt (dort jeweils
+  „Updated for Patch 12.1", 10./11.08.2026). Eingetragen sind:
+
+  | Spezialisierung | Was |
+  |---|---|
+  | Schutz-Paladin | 2726 Meisterschaft = 100 % Zauberblock; 14810 = 100 % physischer Block |
+  | Braumeister-Mönch | 14,3 % Tempo → Fasstritt auf 7 s; 33,3 % → 6 s |
+  | Täuschungs-Schurke | Tempo-Korridor 700–1100 Rating für drei Zusatzfähigkeiten im Schattentanz |
+  | Gesetzlosigkeits-Schurke | Tempo 25 % (M+) bzw. 30 % (Raid); Kritisch verliert ab 40 % an Wert |
+  | Disziplin-Priester | Leerenweber: Tempo lohnt bis 1800 Rating |
+  | Dämonologie- und Zerstörungs-Hexenmeister | Tempo-Zielwert 22 % |
+
+### Warum für die meisten Spezialisierungen nichts dasteht
+
+Das ist kein halbfertiger Stand, sondern das Ergebnis. Seit Patch 6.0.1 haben
+DoTs und HoTs **Teilticks** — ihre Wirkung wächst stetig mit Tempo, statt bei
+bestimmten Werten zu springen. Damit sind die klassischen Tempo-Breakpoints
+verschwunden. Die Guides sagen das durchgehend, am deutlichsten der
+Wiederherstellungs-Druide: *„There are no Haste Breakpoints in the modern
+game."*
+
+Bewusst **nicht** eingetragen wurden außerdem:
+
+- Abschwächungsstufen (1320/1380/1620 Rating …). Mehrere Guides nennen sie als
+  „Breakpoint" — das Addon rechnet genau die selbst aus. Betrifft unter anderem
+  Augmentation-Rufer und Blut-Todesritter.
+- Elementar-Schamane. Die genannten Meisterschaftskappen (76/86/100 %) beziehen
+  sich auf die Auslösechance von Elementarer Überladung, nicht auf den
+  Meisterschaftswert. Das Datenmodell kennt nur den generischen Wert; eine
+  Umrechnung wäre geraten.
+- PvP. Für 12.1 ließ sich keine belastbare Quelle finden — nur Zahlen aus
+  Season 1 und von Verkaufsseiten.
+
+### Tests
+
+- Von 140 auf 152. Der neue Abschnitt prüft die gepflegten Daten selbst: alle
+  39 Namen vorhanden, **keine doppelte `id`** über die ganze Tabelle (der
+  Fehler, den das Zusammenführen sonst still verschluckt), gültiger Wertname,
+  Titel, Quelle und genau eine auflösbare Schwelle je Eintrag.
+
+### Zum offenen Punkt aus 1.1.0
+
+Die Rating-Werte (crit 46, haste 44, mastery 46, versa 54) sind extern
+gegengeprüft: maxroll.gg und die Icy-Veins-Guides zu 12.1 nennen dieselben
+Grenzen. Die in 12.1 geänderten „Diminishing Returns" betreffen die
+Kontrolleffekte im PvP, nicht die Sekundärwerte. **Die Gegenprobe im Spiel
+steht weiterhin aus** — dafür `/sk doctor`.
+
 ## 1.1.0 – 17.08.2026
 
 Die Fassung, mit der das Addon auf **Midnight 12.1.0** läuft.

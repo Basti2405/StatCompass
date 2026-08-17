@@ -314,6 +314,10 @@ Abgedeckt sind unter anderem:
 - die Selbstdiagnose gegen einen simulierten 12.1.0-Charakter: einmal heil,
   einmal mit veralteten Rating-Werten, einmal mit weggefallener Spec-Funktion,
   einmal mit bloß entbehrlicher Lücke
+- die gepflegten Daten selbst: alle 39 Spezialisierungen in `specNamen`, keine
+  doppelte `id` über die ganze Tabelle hinweg, jeder Eintrag mit gültigem
+  Wertnamen, Titel, Quelle und genau **einer** Schwelle, die sich auch
+  auflösen lässt
 
 **Nicht getestet** ist die Oberfläche — Frames, Balken und Tooltips lassen sich
 nur im Spiel prüfen. Dafür gibt es `/sk doctor`.
@@ -341,9 +345,17 @@ anderes Ziel geht als Argument: `./tools/backup.sh /pfad/ziel`.
 
 ## Datenquellen
 
-- Rating-Werte und Abschwächungsstufen: maxroll.gg, „Stat Diminishing Returns"
-  für 12.0.1 — **noch nicht gegen 12.1.0 gegengeprüft**, das macht
-  `/sk doctor` im Spiel
+- Rating-Werte und Abschwächungsstufen: maxroll.gg, „Stat Diminishing Returns";
+  gegengeprüft am 18.08.2026 gegen die Icy-Veins-Stat-Priority-Guides zu Patch
+  12.1 (Stand 10.08.2026), die dieselben Grenzen nennen — 1320/1760/2200 für
+  Tempo, 1380/1840/2300 für Kritisch und Meisterschaft, 1620/2160/2700 für
+  Vielseitigkeit. Die Änderung an den *Diminishing Returns* in 12.1 betrifft
+  die Abklingzeit von Kontrolleffekten im PvP, nicht die Sekundärwerte.
+  Die letzte Instanz bleibt trotzdem `/sk doctor` im Spiel — nur dort wird
+  gegen den laufenden Client gerechnet.
+- Spezialisierungs-Breakpoints: Icy Veins, Stat-Priority-Guides zu Patch 12.1,
+  alle 39 Spezialisierungen abgefragt am 18.08.2026. Jeder Eintrag in
+  `Daten/Breakpoints.lua` trägt seine Quelle bei sich.
 - Regeln: Blizzard, „Combat Philosophy and Addon Disarmament in Midnight";
   Warcraft Wiki, „Patch 12.0.0/API changes"
 

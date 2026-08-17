@@ -9,7 +9,7 @@
 ## Title: Stat-Kompass
 ## Notes: Zeigt die Breakpoints deiner Sekundaerwerte (Diminishing Returns) und wie weit du davon entfernt bist.
 ## Author: Sebas
-## Version: 1.1.0
+## Version: 1.2.0
 ## SavedVariables: StatKompassDB
 ## IconTexture: Interface\Icons\INV_Misc_PocketWatch_01
 
