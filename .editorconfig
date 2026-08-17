@@ -1,0 +1,31 @@
+# .editorconfig - einheitliche Formatierung ueber Editoren hinweg
+# IntelliJ, VS Code und die meisten anderen lesen das von selbst.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = crlf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.lua]
+indent_size = 4
+max_line_length = 120
+
+[*.md]
+# In Markdown sind zwei Leerzeichen am Zeilenende ein Zeilenumbruch.
+trim_trailing_whitespace = false
+
+[*.toc]
+# WoW liest die .toc zeilenweise - Tabs oder Leerzeichen am Anfang stoeren.
+indent_style = space
+indent_size = 0
+
+[*.{yml,yaml}]
+indent_size = 2
+
+[*.sh]
+end_of_line = lf
+indent_size = 2

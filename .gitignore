@@ -1,0 +1,37 @@
+# ---------------------------------------------------------------------------
+# Werkzeuge, die tools/test.sh sich selbst holt
+# ---------------------------------------------------------------------------
+# Lua 5.1 wird zum Testen aus dem Quelltext gebaut. Es gehoert nicht ins
+# Repository - das Skript laedt es bei Bedarf neu.
+.werkzeuge/
+lua-5.1.5/
+*.tar.gz
+
+# ---------------------------------------------------------------------------
+# WoW erzeugt das beim Spielen
+# ---------------------------------------------------------------------------
+# SavedVariables gehoeren zum Charakter, nicht zum Addon.
+*.lua.bak
+SavedVariables/
+StatKompassDB.lua
+
+# ---------------------------------------------------------------------------
+# Entwicklungsumgebung
+# ---------------------------------------------------------------------------
+.idea/
+*.iml
+.vscode/
+.luacheckcache
+
+# ---------------------------------------------------------------------------
+# Betriebssystem
+# ---------------------------------------------------------------------------
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# ---------------------------------------------------------------------------
+# Verpackte Fassungen fuer die Weitergabe
+# ---------------------------------------------------------------------------
+/build/
+StatKompass-*.zip
