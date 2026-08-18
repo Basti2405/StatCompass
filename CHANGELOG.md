@@ -54,13 +54,32 @@ Bewusst **nicht** eingetragen wurden außerdem:
   Fehler, den das Zusammenführen sonst still verschluckt), gültiger Wertname,
   Titel, Quelle und genau eine auflösbare Schwelle je Eintrag.
 
-### Zum offenen Punkt aus 1.1.0
+### Der offene Punkt aus 1.1.0 ist erledigt
 
-Die Rating-Werte (crit 46, haste 44, mastery 46, versa 54) sind extern
-gegengeprüft: maxroll.gg und die Icy-Veins-Guides zu 12.1 nennen dieselben
-Grenzen. Die in 12.1 geänderten „Diminishing Returns" betreffen die
-Kontrolleffekte im PvP, nicht die Sekundärwerte. **Die Gegenprobe im Spiel
-steht weiterhin aus** — dafür `/sk doctor`.
+Die Rating-Werte (crit 46, haste 44, mastery 46, versa 54) sind bestätigt —
+erst extern, dann im Spiel:
+
+- maxroll.gg und die Icy-Veins-Guides zu 12.1 nennen dieselben Grenzen. Die in
+  12.1 geänderten „Diminishing Returns" betreffen die Kontrolleffekte im PvP,
+  nicht die Sekundärwerte.
+- `/sk doctor` am 18.08.2026 gegen **12.1.0 (Build 69382, Interface 120100)**,
+  Gleichgewicht-Druide auf Stufe 90: alle zehn Schnittstellen gefunden, und bei
+  allen vier Werten stimmen eigene Rechnung und Spiel überein — Kritisch
+  670 → 14,57 %, Tempo 620 → 14,09 %, Meisterschaft 929 → 20,20 %,
+  Vielseitigkeit 355 → 6,57 %. Urteil: *„Das Addon arbeitet korrekt."*
+
+**Was diese Probe nicht abdeckt:** Alle vier Werte des Testcharakters lagen
+unter der ersten Abschwächungsstufe (1320 bzw. 1380/1620 Rating). Im Spiel
+gegengerechnet ist damit nur der lineare Bereich. Die Stufen darüber sind durch
+die veröffentlichten Tabellen belegt und durch 24 Testfälle abgesichert, aber
+noch nicht gegen einen ausgerüsteten Charakter geprüft. Wer das nachholen will:
+`/sk doctor` auf einem Charakter mit mehr als 1320 Tempo.
+
+### Behoben
+
+- **Metadaten der eingebauten Daten waren veraltet.** `/sk doctor` meldete
+  „Patch 12.0.7, Stand 2026-08-17", obwohl die Zahlen gegen 12.1 geprüft sind.
+  Jetzt 12.1.0.
 
 ## 1.1.0 – 17.08.2026
 

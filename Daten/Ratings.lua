@@ -15,9 +15,9 @@ SK.Eingebaut = SK.Eingebaut or {}
 -- Zahlen noch zum aktuellen Patch passen.
 -- ===========================================================================
 SK.Eingebaut.meta = {
-    patch = "12.0.7",
-    stand = "2026-08-17",
-    quelle = "maxroll.gg - Stat Diminishing Returns (12.0.1)",
+    patch = "12.1.0",
+    stand = "2026-08-18",
+    quelle = "maxroll.gg + Icy Veins 12.1, im Spiel bestaetigt",
 }
 
 -- ===========================================================================

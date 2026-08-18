@@ -351,8 +351,10 @@ anderes Ziel geht als Argument: `./tools/backup.sh /pfad/ziel`.
   Tempo, 1380/1840/2300 für Kritisch und Meisterschaft, 1620/2160/2700 für
   Vielseitigkeit. Die Änderung an den *Diminishing Returns* in 12.1 betrifft
   die Abklingzeit von Kontrolleffekten im PvP, nicht die Sekundärwerte.
-  Die letzte Instanz bleibt trotzdem `/sk doctor` im Spiel — nur dort wird
-  gegen den laufenden Client gerechnet.
+  Im Spiel bestätigt am 18.08.2026 gegen 12.1.0 (Build 69382): `/sk doctor`
+  meldet bei allen vier Werten Übereinstimmung. Der Testcharakter lag noch
+  unter der ersten Abschwächungsstufe — gegengerechnet ist damit der lineare
+  Bereich, die Stufen darüber sind bislang nur durch Tabelle und Tests belegt.
 - Spezialisierungs-Breakpoints: Icy Veins, Stat-Priority-Guides zu Patch 12.1,
   alle 39 Spezialisierungen abgefragt am 18.08.2026. Jeder Eintrag in
   `Daten/Breakpoints.lua` trägt seine Quelle bei sich.
