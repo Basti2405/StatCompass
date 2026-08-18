@@ -84,11 +84,9 @@ function R.AktuellerFaktor(statKey, rating)
     if not proProzent or proProzent <= 0 then return 1 end
 
     local roh = rating / proProzent
-    local untereGrenze = 0
 
     for _, stufe in ipairs(D.DRStufen()) do
         if roh < stufe.bisRoh then return stufe.faktor end
-        untereGrenze = stufe.bisRoh
     end
 
     return 0

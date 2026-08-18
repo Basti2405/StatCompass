@@ -7,9 +7,31 @@
 -- WoW laeuft auf Lua 5.1.
 std = "lua51"
 
--- WoW gibt Addon-Dateien zwei versteckte Argumente ueber "..." mit.
--- Die Meldung "unused variable addonName" waere hier nur Rauschen.
+-- WoW gibt Addon-Dateien zwei versteckte Argumente ueber "..." mit:
+--     local addonName, SK = ...
+-- Den Namen braucht fast keine Datei, die Zuweisung muss aber dastehen, damit
+-- SK das ZWEITE Argument bekommt. "unused_args" greift dafuer nicht - das sind
+-- keine Funktionsargumente, sondern lokale Variablen. Darum unten die
+-- 211er-Regel gezielt fuer diesen einen Namen.
 unused_args = false
+
+ignore = {
+    -- unbenutzte Variable - nur fuer addonName, siehe oben. Andere unbenutzte
+    -- Variablen sollen weiterhin auffallen.
+    "211/addonName",
+
+    -- leerer if-Zweig. In Logik/ImportExport.lua steht dort absichtlich nur
+    -- "-- nichts tun": Leerzeilen und Kommentare werden uebersprungen. Ein
+    -- ausgeschriebener Zweig liest sich an der Stelle klarer als eine
+    -- verneinte Bedingung.
+    "542",
+
+    -- "self" schattet "self". WoW-Idiom: ein Frame-Handler bekommt seinen
+    -- Frame als self uebergeben, und definiert wird er innerhalb einer
+    -- Methode, die selbst ein self hat. Umbenennen waere hier unueblicher
+    -- als das Schatten.
+    "431/self",
+}
 
 -- Zeilenlaenge: der Quelltext ist stark kommentiert, 120 ist bequem lesbar.
 max_line_length = 120
@@ -70,4 +92,11 @@ files["Tests/logik-test.lua"] = {
         "TestAltOnly", "TestBeide", "TestWirft", "TestNil",
         "TestZwei", "TestVier",
     },
+}
+
+files["Logik/ImportExport.lua"] = {
+    -- Die Fehlermeldungen des Importeurs nennen Zeilennummer, Grund und den
+    -- gelesenen Text in einem Stueck - auseinandergezogen liest sich das
+    -- schlechter als die paar langen Zeilen.
+    max_line_length = 160,
 }

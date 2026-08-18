@@ -302,7 +302,8 @@ pruefeWahr("STAT_CR haengt an der Kompat-Schicht", SK.STAT_CR == A.CR)
 for _, p in ipairs({ "probe1", "probe2", "probe3", "probe4", "probe5", "probe6", "probe7" }) do
     A.fn[p], A.quelle[p], A.fehler[p] = nil, nil, nil
 end
-_G.C_Test, _G.TestAltOnly, _G.TestBeide, _G.TestWirft, _G.TestNil, _G.TestZwei, _G.TestVier = nil, nil, nil, nil, nil, nil, nil
+_G.C_Test, _G.TestAltOnly, _G.TestBeide = nil, nil, nil
+_G.TestWirft, _G.TestNil, _G.TestZwei, _G.TestVier = nil, nil, nil, nil
 
 -- =========================================================================
 print("\n=== 13. Selbstdiagnose (/sk doctor) ===")
@@ -362,7 +363,7 @@ pruefeWahr("Spezialisierung ueber C_SpecializationInfo", sid == 63 and sname == 
 pruefeWahr("  und zwar ueber die NEUE Schreibweise",
     A.quelle.GetSpecialization == "C_SpecializationInfo.GetSpecialization",
     tostring(A.quelle.GetSpecialization))
-local kr, kg, kb = SK.Spieler.KlassenFarbe()
+local kr = SK.Spieler.KlassenFarbe()
 pruefe("Klassenfarbe rot-Anteil", kr, 0.41)
 
 StatKompassDB = { fenster = {}, paket = nil }
