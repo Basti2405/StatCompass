@@ -29,8 +29,10 @@ ignore = {
     -- "self" schattet "self". WoW-Idiom: ein Frame-Handler bekommt seinen
     -- Frame als self uebergeben, und definiert wird er innerhalb einer
     -- Methode, die selbst ein self hat. Umbenennen waere hier unueblicher
-    -- als das Schatten.
+    -- als das Schatten. Zwei Codes: 432 meint ein geschattetes Argument
+    -- (der haeufige Fall hier), 431 ein sonstiges Upvalue.
     "431/self",
+    "432/self",
 }
 
 -- Zeilenlaenge: der Quelltext ist stark kommentiert, 120 ist bequem lesbar.
