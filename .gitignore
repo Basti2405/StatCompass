@@ -38,3 +38,11 @@ StatCompass-*.zip
 
 # Der Packager legt hier das gebaute Paket ab (siehe .pkgmeta).
 /.release/
+
+# ---------------------------------------------------------------------------
+# Persoenliche Arbeitsunterlagen
+# ---------------------------------------------------------------------------
+# PROMPTS.md enthaelt die Vorlagen, mit denen die Update-Pakete und Daten
+# erarbeitet werden. Die Datei bleibt im Ordner liegen und ist weiterhin
+# benutzbar - sie gehoert nur nicht ins oeffentliche Repository.
+PROMPTS.md
