@@ -39,6 +39,7 @@
 -- Fehlermeldung mit Zeilennummer statt eines Absturzes.
 -- ===========================================================================
 local addonName, SK = ...
+local L = SK.L
 
 SK.IO = SK.IO or {}
 local IO = SK.IO
@@ -74,7 +75,7 @@ end
 -- ===========================================================================
 function IO.Import(text)
     if type(text) ~= "string" or strtrim(text) == "" then
-        return nil, { "Es wurde kein Text eingefuegt." }
+        return nil, { L.ERR_EMPTY }
     end
 
     local fehler = {}
@@ -99,7 +100,7 @@ function IO.Import(text)
         -- Kopfzeile
         elseif not kopfGesehen then
             if zeile ~= FORMAT_KOPF then
-                table.insert(fehler, ("Zeile %d: Die erste Zeile muss genau \"%s\" lauten (gefunden: \"%s\")."):format(nr, FORMAT_KOPF, zeile))
+                table.insert(fehler, (L.ERR_HEADER):format(nr, FORMAT_KOPF, zeile))
                 return nil, fehler
             end
             kopfGesehen = true
@@ -110,7 +111,7 @@ function IO.Import(text)
             if schluessel then
                 paket.meta[schluessel] = strtrim(wert)
             else
-                table.insert(fehler, ("Zeile %d: Metadaten brauchen die Form #schluessel=wert."):format(nr))
+                table.insert(fehler, (L.ERR_META):format(nr))
             end
 
         else
@@ -123,9 +124,9 @@ function IO.Import(text)
             if typ == "r" then
                 local stat, zahl = f[2], tonumber(f[3])
                 if not istStat(stat) then
-                    table.insert(fehler, ("Zeile %d: \"%s\" ist kein bekannter Wert (erlaubt: crit, haste, mastery, versatility)."):format(nr, tostring(stat)))
+                    table.insert(fehler, (L.ERR_STAT_LIST):format(nr, tostring(stat)))
                 elseif not zahl or zahl <= 0 then
-                    table.insert(fehler, ("Zeile %d: \"%s\" ist keine gueltige Zahl groesser 0."):format(nr, tostring(f[3])))
+                    table.insert(fehler, (L.ERR_NOT_POSITIVE):format(nr, tostring(f[3])))
                 else
                     paket.ratingProProzent[stat] = zahl
                 end
@@ -137,9 +138,9 @@ function IO.Import(text)
                 local bisRoh = (f[2] == "*") and math.huge or tonumber(f[2])
                 local faktor = tonumber(f[3])
                 if not bisRoh then
-                    table.insert(fehler, ("Zeile %d: Obergrenze \"%s\" ist keine Zahl (\"*\" fuer unendlich)."):format(nr, tostring(f[2])))
+                    table.insert(fehler, (L.ERR_DR_LIMIT):format(nr, tostring(f[2])))
                 elseif not faktor or faktor < 0 or faktor > 1 then
-                    table.insert(fehler, ("Zeile %d: Faktor \"%s\" muss zwischen 0 und 1 liegen."):format(nr, tostring(f[3])))
+                    table.insert(fehler, (L.ERR_DR_FACTOR):format(nr, tostring(f[3])))
                 else
                     table.insert(paket.drStufen, { bisRoh = bisRoh, faktor = faktor })
                 end
@@ -154,19 +155,19 @@ function IO.Import(text)
                 local spec = (specRoh == "*") and "*" or tonumber(specRoh)
 
                 if not spec then
-                    table.insert(fehler, ("Zeile %d: Spezialisierung \"%s\" muss eine Zahl oder \"*\" sein."):format(nr, tostring(specRoh)))
+                    table.insert(fehler, (L.ERR_SPEC):format(nr, tostring(specRoh)))
                 elseif not istStat(stat) then
-                    table.insert(fehler, ("Zeile %d: \"%s\" ist kein bekannter Wert."):format(nr, tostring(stat)))
+                    table.insert(fehler, (L.ERR_STAT):format(nr, tostring(stat)))
                 elseif not titel or titel == "" then
-                    table.insert(fehler, ("Zeile %d: Der Titel darf nicht leer sein."):format(nr))
+                    table.insert(fehler, (L.ERR_TITLE_EMPTY):format(nr))
                 else
                     local art  = schwelle and schwelle:sub(1, 1)
                     local zahl = schwelle and tonumber(schwelle:sub(2))
 
                     if not zahl or zahl <= 0 then
-                        table.insert(fehler, ("Zeile %d: Schwelle \"%s\" ist ungueltig (erwartet z. B. r2050 oder p100)."):format(nr, tostring(schwelle)))
+                        table.insert(fehler, (L.ERR_THRESHOLD):format(nr, tostring(schwelle)))
                     elseif art ~= "r" and art ~= "p" then
-                        table.insert(fehler, ("Zeile %d: Schwelle muss mit \"r\" (Rating) oder \"p\" (Prozent) beginnen."):format(nr))
+                        table.insert(fehler, (L.ERR_THRESH_KIND):format(nr))
                     else
                         paket.breakpoints[spec] = paket.breakpoints[spec] or {}
                         local eintrag = {
@@ -182,13 +183,13 @@ function IO.Import(text)
                 end
 
             else
-                table.insert(fehler, ("Zeile %d: Unbekannter Zeilentyp \"%s\" (erwartet r, d, b oder #)."):format(nr, tostring(typ)))
+                table.insert(fehler, (L.ERR_LINE_TYPE):format(nr, tostring(typ)))
             end
         end
     end
 
     if not kopfGesehen then
-        table.insert(fehler, ("Der Kopf \"%s\" fehlt - das sieht nicht nach einem Update-Paket aus."):format(FORMAT_KOPF))
+        table.insert(fehler, (L.ERR_NO_HEADER):format(FORMAT_KOPF))
     end
 
     if #fehler > 0 then return nil, fehler end
@@ -225,10 +226,12 @@ function IO.Export()
         table.insert(zeilen, ("d|%s|%.2f"):format(grenze, stufe.faktor))
     end
 
-    -- Breakpoints beider Quellen ausgeben.
-    local quellen = { SK.Eingebaut.breakpoints or {} }
-    if StatKompassDB and StatKompassDB.paket and StatKompassDB.paket.breakpoints then
-        table.insert(quellen, StatKompassDB.paket.breakpoints)
+    -- Breakpoints beider Quellen ausgeben. Die eingebauten werden dabei in
+    -- der Anzeigesprache exportiert: Wer ein Paket weitergibt, gibt den Text
+    -- weiter, den er selbst im Fenster sieht.
+    local quellen = { { tabelle = SK.Eingebaut.breakpoints or {}, ausPaket = false } }
+    if StatCompassDB and StatCompassDB.paket and StatCompassDB.paket.breakpoints then
+        table.insert(quellen, { tabelle = StatCompassDB.paket.breakpoints, ausPaket = true })
     end
 
     -- "|" trennt die Spalten und darf deshalb nicht im Text stehen.
@@ -239,8 +242,8 @@ function IO.Export()
     end
 
     local geschrieben = {}
-    for _, tabelle in ipairs(quellen) do
-        for spec, eintraege in pairs(tabelle) do
+    for _, quelle in ipairs(quellen) do
+        for spec, eintraege in pairs(quelle.tabelle) do
             for _, e in ipairs(eintraege) do
                 local schwelle = e.rating and ("r" .. e.rating) or ("p" .. (e.prozent or 0))
                 local schluessel = e.id or (tostring(spec) .. e.stat .. e.titel)
@@ -248,7 +251,9 @@ function IO.Export()
                     geschrieben[schluessel] = true
                     table.insert(zeilen, ("b|%s|%s|%s|%s|%s|%s"):format(
                         tostring(spec), e.stat, schwelle,
-                        sicher(e.titel), sicher(e.info), sicher(e.id)))
+                        sicher(SK.BPText(e, "titel", quelle.ausPaket)),
+                        sicher(SK.BPText(e, "info",  quelle.ausPaket)),
+                        sicher(e.id)))
                 end
             end
         end

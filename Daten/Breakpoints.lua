@@ -3,7 +3,7 @@
 -- DIES IST DIE DATEI, DIE DU ANFASST, wenn du eigene Breakpoints ergaenzen
 -- willst. Alles andere im Addon kann unveraendert bleiben.
 --
--- Alternative ohne Dateibearbeitung: im Spiel  /sk update  eingeben und ein
+-- Alternative ohne Dateibearbeitung: im Spiel  /statcompass update  eingeben und ein
 -- Update-Paket einfuegen. Das ueberschreibt diese Tabelle zur Laufzeit und
 -- ueberlebt jedes Addon-Update. Siehe Logik/ImportExport.lua.
 local addonName, SK = ...
@@ -44,7 +44,7 @@ local addonName, SK = ...
 --           ERSETZEN. Ohne id zaehlt der Titel als Kennung - dann steht der
 --           Eintrag nach einer Umbenennung doppelt in der Liste.
 --
--- SPEZIALISIERUNGS-ID herausfinden: im Spiel  /sk id  eingeben.
+-- SPEZIALISIERUNGS-ID herausfinden: im Spiel  /statcompass id  eingeben.
 -- Der Schluessel ["*"] gilt fuer JEDE Spezialisierung.
 -- ===========================================================================
 
@@ -58,13 +58,13 @@ SK.Eingebaut.breakpoints = {
             id      = "gcd-min",
             stat    = "haste",
             prozent = 100,
-            titel   = "Globale Abklingzeit am Minimum (0,75 s)",
-            info    = "Die globale Abklingzeit startet bei 1,5 s und sinkt mit "
-                   .. "Tempo, aber nie unter 0,75 s. Dafuer braucht man 100 % "
-                   .. "effektives Tempo. Wegen der Abschwaechung ist das in der "
-                   .. "Praxis kaum erreichbar - der Eintrag zeigt vor allem, "
-                   .. "wie weit die Grenze weg ist.",
-            quelle  = "Warcraft Wiki - Haste (Spielmechanik, seit Jahren stabil)",
+            titel   = "Global cooldown at its minimum (0.75 s)",
+            info    = "The global cooldown starts at 1.5 s and drops with haste, "
+                   .. "but never below 0.75 s. That takes 100 % effective haste. "
+                   .. "Diminishing returns make this all but unreachable in "
+                   .. "practice - the entry mostly shows how far away the limit "
+                   .. "is.",
+            quelle  = "Warcraft Wiki - Haste (game mechanic, stable for years)",
         },
     },
 
@@ -106,23 +106,22 @@ SK.Eingebaut.breakpoints = {
             id     = "pala-schutz-zauberblock",
             stat   = "mastery",
             rating = 2726,
-            titel  = "100 % Zauberblock",
-            info   = "Meisterschaft gibt seit Midnight doppelt so viel Block "
-                  .. "gegen Zauber wie gegen Waffen. Ab hier wird jeder Zauber "
-                  .. "geblockt - weitere Meisterschaft bringt dafuer nichts "
-                  .. "mehr. Mit Himmelsfuror eines Schamanen reichen rund 2575.",
+            titel  = "100 % spell block",
+            info   = "Since Midnight, mastery grants twice as much block against "
+                  .. "spells as against weapons. From here on every spell is "
+                  .. "blocked - further mastery adds nothing to it. With a "
+                  .. "shaman's Skyfury around 2575 is enough.",
             quelle = "Icy Veins, Protection Paladin Stat Priority 12.1, abgerufen 18.08.2026",
         },
         {
             id     = "pala-schutz-physblock",
             stat   = "mastery",
             rating = 14810,
-            titel  = "100 % physischer Block",
-            info   = "Rechnerisch die Grenze fuer vollstaendigen Block gegen "
-                  .. "Waffenangriffe. Sie liegt weit ueber der harten "
-                  .. "Abschwaechungsgrenze und ist damit nicht erreichbar - der "
-                  .. "Eintrag zeigt vor allem, wie weit weg sie ist. Mit "
-                  .. "Himmelsfuror rund 13896.",
+            titel  = "100 % physical block",
+            info   = "On paper the threshold for full block against weapon "
+                  .. "attacks. It sits far above the hard diminishing-returns cap "
+                  .. "and is therefore unreachable - the entry mostly shows how "
+                  .. "far away it is. With Skyfury around 13896.",
             quelle = "Icy Veins, Protection Paladin Stat Priority 12.1, abgerufen 18.08.2026",
         },
     },
@@ -136,19 +135,19 @@ SK.Eingebaut.breakpoints = {
             id      = "moench-brau-fasstritt-7s",
             stat    = "haste",
             prozent = 14.3,
-            titel   = "Fasstritt auf 7 Sekunden",
-            info    = "Die Abklingzeit von Fasstritt sinkt von 8 auf 7 Sekunden. "
-                   .. "Damit passt der Tritt sauber in den Rotationszyklus.",
+            titel   = "Keg Smash down to 7 seconds",
+            info    = "The cooldown of Keg Smash drops from 8 to 7 seconds, which "
+                   .. "makes it line up cleanly with the rotation cycle.",
             quelle  = "Icy Veins, Brewmaster Monk Stat Priority 12.1, abgerufen 18.08.2026",
         },
         {
             id      = "moench-brau-fasstritt-6s",
             stat    = "haste",
             prozent = 33.3,
-            titel   = "Fasstritt auf 6 Sekunden",
-            info    = "Die naechste Stufe: Abklingzeit 6 Sekunden. Deutlich "
-                   .. "teurer als die erste, weil hier bereits die Abschwaechung "
-                   .. "greift.",
+            titel   = "Keg Smash down to 6 seconds",
+            info    = "The next step: a 6 second cooldown. Considerably more "
+                   .. "expensive than the first one, because diminishing returns "
+                   .. "have already kicked in here.",
             quelle  = "Icy Veins, Brewmaster Monk Stat Priority 12.1, abgerufen 18.08.2026",
         },
     },
@@ -159,10 +158,10 @@ SK.Eingebaut.breakpoints = {
             id     = "priester-disz-voidweaver-tempo",
             stat   = "haste",
             rating = 1800,
-            titel  = "Leerenweber: Tempo lohnt sich bis hier",
-            info    = "Empfehlung des Guides fuer den Leerenweber-Aufbau, keine "
-                  .. "Mechanik: Bis rund 1800 Rating ist Tempo der beste Wert, "
-                  .. "danach legen die anderen zu.",
+            titel  = "Voidweaver: haste pays off up to here",
+            info    = "A guide recommendation for the Voidweaver build, not a "
+                  .. "mechanic: up to roughly 1800 rating haste is the best stat, "
+                  .. "beyond that the others pull ahead.",
             quelle = "Icy Veins, Discipline Priest Stat Priority 12.1, abgerufen 18.08.2026",
         },
     },
@@ -173,29 +172,29 @@ SK.Eingebaut.breakpoints = {
             id      = "schurke-gesetz-tempo-mplus",
             stat    = "haste",
             prozent = 25,
-            titel   = "M+: Tempo-Zielwert",
-            info    = "Richtwert des Guides fuer Mythisch+. In diesem Bereich "
-                   .. "drueckt Adrenalinrausch die globale Abklingzeit auf 0,8 s "
-                   .. "statt 1,0 s.",
+            titel   = "M+: haste target",
+            info    = "The guide's figure for Mythic+. In this range Adrenaline "
+                   .. "Rush pushes the global cooldown down to 0.8 s instead of "
+                   .. "1.0 s.",
             quelle  = "Icy Veins, Outlaw Rogue Stat Priority 12.1, abgerufen 18.08.2026",
         },
         {
             id      = "schurke-gesetz-tempo-raid",
             stat    = "haste",
             prozent = 30,
-            titel   = "Raid: Tempo-Zielwert",
-            info    = "Im Raid empfiehlt der Guide etwas mehr Tempo als in "
-                   .. "Mythisch+, weil die Kaempfe laenger laufen.",
+            titel   = "Raid: haste target",
+            info    = "For raiding the guide recommends slightly more haste than "
+                   .. "for Mythic+, because the fights run longer.",
             quelle  = "Icy Veins, Outlaw Rogue Stat Priority 12.1, abgerufen 18.08.2026",
         },
         {
             id      = "schurke-gesetz-krit-grenze",
             stat    = "crit",
             prozent = 40,
-            titel   = "Kritisch verliert an Wert",
-            info    = "Ab rund 40 % kritischem Trefferwert faellt der Zugewinn "
-                   .. "hinter die anderen Werte zurueck. Keine harte Grenze, "
-                   .. "sondern der Punkt zum Umschichten.",
+            titel   = "Critical strike loses value",
+            info    = "From around 40 % critical strike the gain falls behind the "
+                   .. "other stats. Not a hard limit, but the point at which to "
+                   .. "shift your gearing.",
             quelle  = "Icy Veins, Outlaw Rogue Stat Priority 12.1, abgerufen 18.08.2026",
         },
     },
@@ -208,20 +207,19 @@ SK.Eingebaut.breakpoints = {
             id     = "schurke-taeuschung-schattentanz-unten",
             stat   = "haste",
             rating = 700,
-            titel  = "Schattentanz: Untergrenze",
-            info   = "Ab hier reicht das Tempo fuer drei zusaetzliche "
-                  .. "Faehigkeiten im Schattentanz-Fenster (ueber Vertiefte "
-                  .. "Schatten).",
+            titel  = "Shadow Dance: lower bound",
+            info   = "From here on there is enough haste for three extra abilities "
+                  .. "inside the Shadow Dance window (via Deepening Shadows).",
             quelle = "Icy Veins, Subtlety Rogue Stat Priority 12.1, abgerufen 18.08.2026",
         },
         {
             id     = "schurke-taeuschung-schattentanz-oben",
             stat   = "haste",
             rating = 1100,
-            titel  = "Schattentanz: Obergrenze",
-            info   = "Oberes Ende des empfohlenen Korridors (700 bis 1100). "
-                  .. "Darueber hinaus bringt Tempo keine weitere Faehigkeit ins "
-                  .. "Fenster - dann sind andere Werte besser.",
+            titel  = "Shadow Dance: upper bound",
+            info   = "The top of the recommended corridor (700 to 1100). Beyond "
+                  .. "it haste adds no further ability to the window - other "
+                  .. "stats are the better choice from there.",
             quelle = "Icy Veins, Subtlety Rogue Stat Priority 12.1, abgerufen 18.08.2026",
         },
     },
@@ -232,9 +230,9 @@ SK.Eingebaut.breakpoints = {
             id      = "hexer-daemo-tempo",
             stat    = "haste",
             prozent = 22,
-            titel   = "Tempo-Zielwert",
-            info    = "Der Guide setzt Tempo bis 22 % an die erste Stelle, erst "
-                   .. "danach zaehlen die uebrigen Sekundaerwerte.",
+            titel   = "Haste target",
+            info    = "The guide puts haste first up to 22 %; only beyond that do "
+                   .. "the remaining secondary stats count.",
             quelle  = "Icy Veins, Demonology Warlock Stat Priority 12.1, abgerufen 18.08.2026",
         },
     },
@@ -245,9 +243,9 @@ SK.Eingebaut.breakpoints = {
             id      = "hexer-zerst-tempo",
             stat    = "haste",
             prozent = 22,
-            titel   = "Tempo-Zielwert",
-            info    = "Wie bei der Daemonologie: bis 22 % Tempo vorrangig, "
-                   .. "danach kritischer Trefferwert.",
+            titel   = "Haste target",
+            info    = "Same as Demonology: haste takes priority up to 22 %, "
+                   .. "critical strike after that.",
             quelle  = "Icy Veins, Destruction Warlock Stat Priority 12.1, abgerufen 18.08.2026",
         },
     },
@@ -264,89 +262,95 @@ SK.Eingebaut.breakpoints = {
     --         id     = "feuer-tick",
     --         stat   = "haste",
     --         rating = 2050,
-    --         titel  = "Beispiel: zusaetzlicher Tick",
-    --         info   = "Nur eine Vorlage - bitte durch echte Werte ersetzen.",
-    --         quelle = "-- hier den Guide eintragen --",
+    --         titel  = "Example: additional tick",
+    --         info   = "Only a template - replace with real values.",
+    --         quelle = "-- name the guide here --",
     --     },
     -- },
 }
 
 -- ===========================================================================
--- Kurznamen der Spezialisierungen fuer die Anzeige.
--- Nur als Beschriftung gedacht - das Addon fragt den echten Namen zur
--- Laufzeit ueber die WoW-Schnittstelle ab, das hier ist nur ein Rueckfall.
--- Deshalb stehen hier auch keine Umlaute: die Namen erscheinen nur, wenn die
--- Schnittstelle nichts liefert, und dann ist Lesbarkeit wichtiger als Schoenheit.
+-- Rueckfall-Namen der Spezialisierungen
+-- ---------------------------------------------------------------------------
+-- Im Normalfall kommt der Spezialisierungsname vom Spiel selbst und ist damit
+-- bereits in der Sprache des Clients - siehe SK.Spieler.Spec(). Diese Tabelle
+-- greift NUR, wenn GetSpecializationInfo nichts liefert (etwa weil Blizzard
+-- die Funktion wieder umgezogen hat). Genau dafuer ist sie da: Statt einer
+-- leeren Ueberschrift steht dann wenigstens der Name der Spezialisierung dort.
+--
+-- Sie ist bewusst NICHT uebersetzt. Ein Rueckfall, der im Alltag nie zu sehen
+-- ist, rechtfertigt keine 39 zusaetzlichen Schluessel je Sprache - und die
+-- englischen Namen sind auch im deutschen Client eindeutig zuzuordnen.
 --
 -- Die IDs sind seit Legion stabil. Midnight (12.0/12.1) hat KEINE neue
 -- Spezialisierung gebracht - nur Umbauten bestehender. Gegenprobe im Spiel
--- jederzeit ueber  /sk id .
+-- jederzeit ueber  /statcompass id .
 -- ===========================================================================
 SK.Eingebaut.specNamen = {
-    ["*"] = "Alle Spezialisierungen",
+    ["*"] = "All specializations",
 
     -- Todesritter
-    [250]  = "Blut",
+    [250]  = "Blood",
     [251]  = "Frost",
-    [252]  = "Unheilig",
+    [252]  = "Unholy",
 
     -- Daemonenjaeger
-    [577]  = "Verwuestung",
-    [581]  = "Rachsucht",
+    [577]  = "Havoc",
+    [581]  = "Vengeance",
 
     -- Druide
-    [102]  = "Gleichgewicht",
-    [103]  = "Wildheit",
-    [104]  = "Waechter",
-    [105]  = "Wiederherstellung",
+    [102]  = "Balance",
+    [103]  = "Feral",
+    [104]  = "Guardian",
+    [105]  = "Restoration",
 
     -- Rufer
-    [1467] = "Verwuestung",
-    [1468] = "Bewahrer",
+    [1467] = "Devastation",
+    [1468] = "Preservation",
     [1473] = "Augmentation",
 
     -- Jaeger
-    [253]  = "Tierherrschaft",
-    [254]  = "Treffsicherheit",
-    [255]  = "Ueberleben",
+    [253]  = "Beast Mastery",
+    [254]  = "Marksmanship",
+    [255]  = "Survival",
 
     -- Magier
-    [62]   = "Arkan",
-    [63]   = "Feuer",
+    [62]   = "Arcane",
+    [63]   = "Fire",
     [64]   = "Frost",
 
     -- Moench
-    [268]  = "Braumeister",
-    [269]  = "Wandelnder Wind",
-    [270]  = "Nebelwirker",
+    [268]  = "Brewmaster",
+    [269]  = "Windwalker",
+    [270]  = "Mistweaver",
 
     -- Paladin
-    [65]   = "Heilig",
-    [66]   = "Schutz",
-    [70]   = "Vergeltung",
+    [65]   = "Holy",
+    [66]   = "Protection",
+    [70]   = "Retribution",
 
     -- Priester
-    [256]  = "Disziplin",
-    [257]  = "Heilig",
-    [258]  = "Schatten",
+    [256]  = "Discipline",
+    [257]  = "Holy",
+    [258]  = "Shadow",
 
     -- Schurke
-    [259]  = "Meucheln",
-    [260]  = "Gesetzlosigkeit",
-    [261]  = "Taeuschung",
+    [259]  = "Assassination",
+    [260]  = "Outlaw",
+    [261]  = "Subtlety",
 
     -- Schamane
-    [262]  = "Elementar",
-    [263]  = "Verstaerkung",
-    [264]  = "Wiederherstellung",
+    [262]  = "Elemental",
+    [263]  = "Enhancement",
+    [264]  = "Restoration",
 
     -- Hexenmeister
-    [265]  = "Gebrechen",
-    [266]  = "Daemonologie",
-    [267]  = "Zerstoerung",
+    [265]  = "Affliction",
+    [266]  = "Demonology",
+    [267]  = "Destruction",
 
     -- Krieger
-    [71]   = "Waffen",
-    [72]   = "Furor",
-    [73]   = "Schutz",
+    [71]   = "Arms",
+    [72]   = "Fury",
+    [73]   = "Protection",
 }

@@ -1,0 +1,64 @@
+## Interface: 120100
+# Passt zu Live-Patch 12.1.0 (Midnight).
+# Bei neuem Patch: aktuelle Nummer aus einem vorhandenen Addon (dessen .toc)
+# uebernehmen, dann ist der "veraltet"-Hinweis im Addon-Menue weg.
+# ACHTUNG: Diese Nummer sagt nur "Addon ist fuer diesen Patch gebaut". Ob die
+# Rating-Werte in Daten\Ratings.lua noch stimmen, ist eine andere Frage - die
+# beantwortet /statcompass test im Spiel.
+
+## Title: StatCompass
+## Notes: Shows the secondary-stat breakpoints (diminishing returns) for your specialization and how far away you are from each of them.
+## Notes-deDE: Zeigt die Breakpoints deiner Sekundaerwerte (Diminishing Returns) und wie weit du davon entfernt bist.
+## Author: Basti2405
+## Version: 1.3.0
+## IconTexture: Interface\Icons\INV_Misc_PocketWatch_01
+
+# StatKompassDB ist der alte Name aus der Zeit vor der Umbenennung. Er steht
+# hier nur noch, damit Core.lua den vorhandenen Stand einmalig uebernehmen
+# kann - in einer spaeteren Version faellt er ersatzlos weg.
+## SavedVariables: StatCompassDB, StatKompassDB
+
+# ---------------------------------------------------------------------------
+# Angaben fuer die Verteilplattformen. Die Projekt-IDs traegt man nach dem
+# Anlegen des jeweiligen Projekts nach - der Packager liest sie von hier.
+# ---------------------------------------------------------------------------
+## X-License: MIT
+## X-Website: https://github.com/Basti2405/StatCompass
+## X-Category: Character Advancement
+# ## X-Curse-Project-ID:
+# ## X-Wago-ID:
+# ## X-WoWI-ID:
+
+# ---------------------------------------------------------------------------
+# Ladereihenfolge: Sprachen zuerst, dann Daten, Logik, Oberflaeche, Core.
+# Grund: Core startet beim Login alles auf - da muss der Rest schon da sein.
+# ---------------------------------------------------------------------------
+
+# Sprachdateien. enUS ist die Grundlage und muss vollstaendig sein; alles
+# Weitere ueberschreibt nur einzelne Schluessel.
+Locales\enUS.lua
+Locales\deDE.lua
+
+# Bruecke zu den WoW-Schnittstellen. Muss vor den Daten stehen, weil schon
+# Daten\Ratings.lua die Combat-Rating-Konstanten von hier bezieht.
+Logik\Kompat.lua
+
+# Reine Daten - hier wird nichts berechnet. Das sind die Dateien, die bei
+# einem neuen Patch angefasst werden (oder per Update-Paket ueberschrieben).
+Daten\Ratings.lua
+Daten\Breakpoints.lua
+
+# Logik - liest Spielerwerte, rechnet, verwaltet Update-Pakete.
+Logik\Datenpaket.lua
+Logik\Rechner.lua
+Logik\Spielerwerte.lua
+Logik\ImportExport.lua
+
+# Selbstdiagnose - beantwortet  /statcompass doctor . Braucht alles darueber.
+Logik\Diagnose.lua
+
+# Oberflaeche.
+UI\Fenster.lua
+UI\UpdateDialog.lua
+
+Core.lua

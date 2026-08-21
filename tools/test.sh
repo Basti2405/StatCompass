@@ -84,7 +84,7 @@ fi
 info ""
 info "=== Ladeliste der .toc ==="
 
-TOC="$ADDON/StatKompass.toc"
+TOC="$ADDON/StatCompass.toc"
 TOC_FEHLER=0
 
 while IFS= read -r zeile; do

@@ -9,7 +9,7 @@
 --        curl -sSL https://www.lua.org/ftp/lua-5.1.5.tar.gz | tar xz
 --        cd lua-5.1.5 && make posix
 --   2. Test starten (Pfad zum Addon ueber die Umgebungsvariable SKPFAD):
---        SKPFAD=/pfad/zu/StatKompass ./lua-5.1.5/src/lua Tests/logik-test.lua
+--        SKPFAD=/pfad/zu/StatCompass ./lua-5.1.5/src/lua Tests/logik-test.lua
 --
 -- Syntaxpruefung aller Dateien (findet Tippfehler vor dem Spielstart):
 --        find . -name "*.lua" -exec ./lua-5.1.5/src/luac -p {} \;
@@ -26,7 +26,7 @@ function strtrim(s)
     return (tostring(s):gsub("^%s+", ""):gsub("%s+$", ""))
 end
 
-StatKompassDB = nil   -- kein Paket aktiv
+StatCompassDB = nil   -- kein Paket aktiv
 
 -- ---- Addon-Namespace + Dateien laden -------------------------------------
 local SK = {}
@@ -34,11 +34,18 @@ local BASIS = os.getenv("SKPFAD")
 
 local function ladeDatei(pfad)
     local f = assert(loadfile(BASIS .. "/" .. pfad), "konnte nicht laden: " .. pfad)
-    f("StatKompass", SK)
+    f("StatCompass", SK)
 end
 
--- Reihenfolge wie in StatKompass.toc. Kompat.lua muss zuerst, weil
+-- Reihenfolge wie in StatCompass.toc. Die Sprachdateien muessen zuerst, weil
+-- schon Daten/Ratings.lua auf SK.L zugreift; Kompat.lua davor, weil
 -- Daten/Ratings.lua die Rating-Konstanten von dort bezieht.
+--
+-- GetLocale gibt es hier nicht - Locales/deDE.lua steigt deshalb sofort wieder
+-- aus und die Tests laufen gegen die englischen Texte. Der Vergleich beider
+-- Sprachen steht weiter unten in Abschnitt 15.
+ladeDatei("Locales/enUS.lua")
+ladeDatei("Locales/deDE.lua")
 ladeDatei("Logik/Kompat.lua")
 ladeDatei("Daten/Ratings.lua")
 ladeDatei("Daten/Breakpoints.lua")
@@ -196,7 +203,13 @@ end
 
 -- =========================================================================
 print("\n=== 10. Paket ueberlagert eingebaute Daten ===")
-StatKompassDB = { paket = paket }
+-- Vor dem Ueberlagern merken, damit weiter unten geprueft werden kann, dass
+-- der Merge die eingebaute Tabelle nicht angefasst hat. Bewusst gemerkt statt
+-- als Klartext hingeschrieben: Der Titel darf sich aendern duerfen, ohne dass
+-- deswegen ein Test bricht - unveraendert BLEIBEN muss er trotzdem.
+local titelVorher = SK.Eingebaut.breakpoints["*"][1].titel
+
+StatCompassDB = { paket = paket }
 pruefe("Tempo-Rating jetzt 45 statt 44", SK.Daten.RatingProProzent("haste"), 45)
 pruefeWahr("Meta zeigt Paket an", SK.Daten.Meta().istPaket == true)
 pruefeWahr("Meta-Patch aus Paket", SK.Daten.Meta().patch == "12.0.8")
@@ -217,7 +230,7 @@ pruefeWahr("GCD-Eintrag stammt jetzt aus dem Paket",
 pruefeWahr("und traegt den neuen Titel",
     gcdEintrag and gcdEintrag.titel == "GCD-Minimum korrigiert", gcdEintrag and gcdEintrag.titel)
 
-StatKompassDB = nil
+StatCompassDB = nil
 pruefe("nach Entfernen wieder 44", SK.Daten.RatingProProzent("haste"), 44)
 
 -- Die eingebauten Daten duerfen durch den Merge NICHT veraendert worden sein.
@@ -225,11 +238,11 @@ local eingebautGcd = SK.Eingebaut.breakpoints["*"][1]
 pruefeWahr("eingebauter Eintrag unveraendert (kein herkunft-Feld)",
     eingebautGcd.herkunft == nil, "herkunft = " .. tostring(eingebautGcd.herkunft))
 pruefeWahr("eingebauter Titel unveraendert",
-    eingebautGcd.titel == "Globale Abklingzeit am Minimum (0,75 s)", eingebautGcd.titel)
+    eingebautGcd.titel == titelVorher, eingebautGcd.titel)
 
 -- =========================================================================
 print("\n=== 11. Export -> Import (Rundlauf) ===")
-StatKompassDB = { paket = nil }
+StatCompassDB = { paket = nil }
 local text = SK.IO.Export()
 print("--- erzeugtes Paket ---")
 print(text)
@@ -306,7 +319,7 @@ _G.C_Test, _G.TestAltOnly, _G.TestBeide = nil, nil, nil
 _G.TestWirft, _G.TestNil, _G.TestZwei, _G.TestVier = nil, nil, nil, nil
 
 -- =========================================================================
-print("\n=== 13. Selbstdiagnose (/sk doctor) ===")
+print("\n=== 13. Selbstdiagnose (/statcompass doctor) ===")
 -- Hier wird ein vollstaendiger 12.1.0-Charakter simuliert und geprueft, dass
 -- die Diagnose das auch als "alles in Ordnung" erkennt.
 
@@ -366,7 +379,7 @@ pruefeWahr("  und zwar ueber die NEUE Schreibweise",
 local kr = SK.Spieler.KlassenFarbe()
 pruefe("Klassenfarbe rot-Anteil", kr, 0.41)
 
-StatKompassDB = { fenster = {}, paket = nil }
+StatCompassDB = { fenster = {}, paket = nil }
 local d = SK.Diagnose.Sammeln()
 
 pruefe("Diagnose: Spiel-Interface erkannt", d.spiel.tocVersion, 120100)
@@ -438,7 +451,7 @@ local dAlt = SK.Diagnose.Sammeln()
 pruefeWahr("veraltete Interface-Nummer gibt einen Hinweis",
     dAlt.gesamt == SK.Diagnose.STUFEN.HINWEIS, tostring(dAlt.gesamt))
 
-StatKompassDB = nil
+StatCompassDB = nil
 
 -- =========================================================================
 print("\n=== 14. Gepflegte Daten: Form und Eindeutigkeit ===")
@@ -461,10 +474,14 @@ pruefe("specNamen: alle 39 Spezialisierungen", anzahlSpecs, 39)
 
 -- Stichproben ueber die Klassen hinweg. Faellt eine ID beim Abtippen um eine
 -- Stelle daneben, faellt es hier auf und nicht erst im Spiel.
-pruefeWahr("specNamen: 63 ist Feuer",           namen[63]   == "Feuer",           tostring(namen[63]))
-pruefeWahr("specNamen: 254 ist Treffsicherheit", namen[254] == "Treffsicherheit", tostring(namen[254]))
-pruefeWahr("specNamen: 1473 ist Augmentation",  namen[1473] == "Augmentation",    tostring(namen[1473]))
-pruefeWahr("specNamen: 66 ist Schutz",          namen[66]   == "Schutz",          tostring(namen[66]))
+pruefeWahr("specNamen: 63 ist Fire",           namen[63]   == "Fire",          tostring(namen[63]))
+pruefeWahr("specNamen: 254 ist Marksmanship",  namen[254]  == "Marksmanship",  tostring(namen[254]))
+pruefeWahr("specNamen: 1473 ist Augmentation", namen[1473] == "Augmentation",  tostring(namen[1473]))
+pruefeWahr("specNamen: 66 ist Protection",     namen[66]   == "Protection",    tostring(namen[66]))
+-- 577 (Daemonenjaeger) und 1467 (Rufer) heissen auf Deutsch beide
+-- "Verwuestung" - auf Englisch nicht. Genau da geht eine Umstellung schief.
+pruefeWahr("specNamen: 577 ist Havoc",         namen[577]  == "Havoc",         tostring(namen[577]))
+pruefeWahr("specNamen: 1467 ist Devastation",  namen[1467] == "Devastation",   tostring(namen[1467]))
 
 -- --- Breakpoint-Eintraege ------------------------------------------------
 local gueltigeWerte = { crit = true, haste = true, mastery = true, versatility = true }
@@ -534,6 +551,125 @@ for _, e in ipairs(ohneEigene) do
     if e.id == "gcd-min" then hatGcd = true end
 end
 pruefeWahr("Spec ohne eigene Eintraege bekommt trotzdem die allgemeinen", hatGcd)
+
+-- =========================================================================
+print("\n=== 15. Sprachdateien ===")
+-- Zwei Fehler, die im Spiel erst auffallen, wenn ein Spieler darauf klickt:
+-- ein Schluessel, den nur eine Sprache kennt (Tippfehler), und eine
+-- Uebersetzung mit anderen Formatplatzhaltern als das Original - Letzteres
+-- wirft in string.format einen echten Laufzeitfehler.
+
+local function ladeSprache(locale, vorbelegt)
+    local eigen = { L = vorbelegt }
+    _G.GetLocale = function() return locale end
+    assert(loadfile(BASIS .. "/Locales/enUS.lua"), "enUS.lua fehlt")("StatCompass", eigen)
+    if not vorbelegt then
+        -- enUS hat SK.L selbst angelegt; deDE darf jetzt darauf schreiben.
+        assert(loadfile(BASIS .. "/Locales/deDE.lua"), "deDE.lua fehlt")("StatCompass", eigen)
+    end
+    return eigen.L
+end
+
+-- Einmal nur enUS (deDE steigt bei locale ~= "deDE" sofort aus) ...
+local Len = ladeSprache("enUS")
+-- ... und einmal deDE allein in eine leere Tabelle, damit genau die
+-- Schluessel uebrig bleiben, die die deutsche Datei setzt.
+local nurDe = {}
+do
+    local eigen = { L = nurDe }
+    _G.GetLocale = function() return "deDE" end
+    assert(loadfile(BASIS .. "/Locales/deDE.lua"))("StatCompass", eigen)
+end
+_G.GetLocale = nil
+
+local function platzhalter(text)
+    local n = 0
+    -- "%%" ist ein ausgeschriebenes Prozentzeichen und zaehlt nicht mit.
+    for _ in tostring(text):gsub("%%%%", ""):gmatch("%%[-+ #0-9.]*[a-zA-Z]") do n = n + 1 end
+    return n
+end
+
+local unbekannt, abweichend, uebersetzt = {}, {}, 0
+for schluessel, deText in pairs(nurDe) do
+    uebersetzt = uebersetzt + 1
+    -- BP_*-Schluessel uebersetzen Daten\Breakpoints.lua und stehen deshalb
+    -- absichtlich nicht in enUS.lua - dort steht der englische Klartext.
+    if schluessel:sub(1, 3) ~= "BP_" then
+        local enText = rawget(Len, schluessel)
+        if enText == nil then
+            table.insert(unbekannt, schluessel)
+        elseif platzhalter(enText) ~= platzhalter(deText) then
+            table.insert(abweichend, ("%s (en=%d, de=%d)"):format(
+                schluessel, platzhalter(enText), platzhalter(deText)))
+        end
+    end
+end
+
+pruefeWahr("deDE: uebersetzt ueberhaupt etwas", uebersetzt > 50, "Schluessel: " .. uebersetzt)
+pruefeWahr("deDE: kein Schluessel ohne Gegenstueck in enUS",
+    #unbekannt == 0, table.concat(unbekannt, ", "))
+pruefeWahr("deDE: gleiche Formatplatzhalter wie enUS",
+    #abweichend == 0, table.concat(abweichend, "; "))
+
+-- Fehlender Schluessel darf nie nil sein, sonst bricht der Fensteraufbau ab.
+pruefeWahr("unbekannter Schluessel liefert sich selbst zurueck",
+    Len.GIBT_ES_NICHT == "GIBT_ES_NICHT", tostring(Len.GIBT_ES_NICHT))
+
+-- Jeder eingebaute Breakpoint braucht eine deutsche Fassung - sonst steht im
+-- deutschen Spiel unvermittelt englischer Text zwischen den anderen Zeilen.
+local ohneUebersetzung = {}
+for _, eintraege in pairs(SK.Eingebaut.breakpoints) do
+    for _, e in ipairs(eintraege) do
+        if e.id and not nurDe["BP_" .. e.id .. "_TITLE"] then
+            table.insert(ohneUebersetzung, e.id)
+        end
+    end
+end
+pruefeWahr("jeder eingebaute Breakpoint hat einen deutschen Titel",
+    #ohneUebersetzung == 0, table.concat(ohneUebersetzung, ", "))
+
+-- =========================================================================
+print("\n=== 16. Import: Steuerzeichen koennen nicht durchrutschen ===")
+-- Ein Update-Paket ist Text von Fremden. Wuerde daraus eine WoW-Escape-Sequenz
+-- (|H...|h fuer klickbare Links, |T...|t fuer Grafiken) im Fenster landen,
+-- liesse sich damit ein echt aussehender Gegenstandslink faelschen.
+--
+-- Das kann nicht passieren, weil "|" die Spalten trennt: Der Parser zerlegt
+-- die Zeile daran, bevor irgendein Text entsteht. Dieser Test haelt genau das
+-- fest - wuerde jemand spaeter auf ein anderes Trennzeichen umstellen, faellt
+-- es hier auf und nicht erst im Spiel.
+local boesePakete = {
+    ["|H im Titel"] = "SK1\nb|*|haste|p50|" .. "|Hitem:6948|h[Hearthstone]|h" .. "|Text",
+    ["|T im Info"]  = "SK1\nb|*|haste|p50|Titel||TInterface\\Icons\\Foo:16|t",
+    ["|c im Titel"] = "SK1\nb|*|haste|p50||cffff0000rot|r|Text",
+}
+
+for name, text in pairs(boesePakete) do
+    local paket = SK.IO.Import(text)
+    local gefunden = false
+    if paket and paket.breakpoints then
+        for _, eintraege in pairs(paket.breakpoints) do
+            for _, e in ipairs(eintraege) do
+                if tostring(e.titel):find("|", 1, true)
+                   or tostring(e.info or ""):find("|", 1, true) then
+                    gefunden = true
+                end
+            end
+        end
+    end
+    pruefeWahr("kein \"|\" im uebernommenen Text: " .. name, not gefunden)
+end
+
+-- Und die Gegenrichtung: Beim Export wird "|" zu "/", damit ein exportiertes
+-- Paket wieder einlesbar ist.
+StatCompassDB = { paket = { breakpoints = { ["*"] = { {
+    id = "test-pipe", stat = "haste", prozent = 50,
+    titel = "A|B", info = "C|D",
+} } } } }
+local exportiert = SK.IO.Export()
+pruefeWahr("Export entschaerft \"|\" in Texten zu \"/\"",
+    exportiert:find("A/B", 1, true) ~= nil and exportiert:find("C/D", 1, true) ~= nil)
+StatCompassDB = nil
 
 -- =========================================================================
 print(string.format("\n=== ERGEBNIS: %d bestanden, %d fehlgeschlagen ===\n", bestanden, fehlgeschlagen))

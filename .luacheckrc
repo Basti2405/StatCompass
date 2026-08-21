@@ -64,16 +64,21 @@ read_globals = {
 
     -- Addon-Verwaltung
     "GetBuildInfo", "GetAddOnMetadata", "C_AddOns", "C_Timer",
+
+    -- Sprache des Clients. Wird in Locales/*.lua abgefragt, um zu entscheiden,
+    -- ob die Datei ihre Texte ueberhaupt setzt.
+    "GetLocale",
 }
 
 -- ---------------------------------------------------------------------------
 -- Globals, die dieses Addon selbst setzt (lesen und schreiben)
 -- ---------------------------------------------------------------------------
 globals = {
-    "StatKompass",            -- Core.lua macht den Namensraum global erreichbar
-    "StatKompassDB",          -- SavedVariables
-    "SLASH_STATKOMPASS1",
-    "SLASH_STATKOMPASS2",
+    "StatCompass",            -- Core.lua macht den Namensraum global erreichbar
+    "StatCompassDB",          -- SavedVariables
+    "SLASH_STATCOMPASS1",
+    "SLASH_STATCOMPASS2",
+    "SLASH_STATCOMPASS3",
     "SlashCmdList",
 }
 
@@ -85,15 +90,23 @@ files["Tests/logik-test.lua"] = {
     -- Globals. Das ist hier kein Fehler, sondern der Zweck der Datei.
     globals = {
         "CR_CRIT_MELEE", "CR_HASTE_MELEE", "CR_MASTERY",
-        "CR_VERSATILITY_DAMAGE_DONE", "strtrim", "StatKompassDB",
+        "CR_VERSATILITY_DAMAGE_DONE", "strtrim", "StatCompassDB",
         "GetBuildInfo", "GetCombatRating", "GetCombatRatingBonus",
         "GetCritChance", "GetHaste", "GetMasteryEffect",
         "GetSpecialization", "GetSpecializationInfo",
         "C_SpecializationInfo", "C_AddOns", "C_Test",
-        "UnitClass", "RAID_CLASS_COLORS",
+        "UnitClass", "RAID_CLASS_COLORS", "GetLocale",
         "TestAltOnly", "TestBeide", "TestWirft", "TestNil",
         "TestZwei", "TestVier",
     },
+}
+
+-- Sprachdateien: Ein Satz gehoert in EINE Zeile. Umbrueche mit ".." mitten im
+-- Text machen das Uebersetzen fehleranfaellig - man sieht nicht mehr auf einen
+-- Blick, was am Ende dasteht, und ein vergessenes Leerzeichen an der Nahtstelle
+-- faellt erst im Spiel auf. Deshalb hier keine Laengenbegrenzung.
+files["Locales"] = {
+    max_line_length = false,
 }
 
 files["Logik/ImportExport.lua"] = {

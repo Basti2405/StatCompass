@@ -1,23 +1,25 @@
 #!/usr/bin/env bash
 #
-# tools/backup.sh - Sicherung auf das RAID (Laufwerk M:)
+# tools/backup.sh - Sicherung des Addons an einen zweiten Ort
 #
 # Legt zwei Dinge ab:
 #   1. einen datierten Ordner mit dem Dateistand
 #   2. ein git-Bundle - eine einzelne Datei, die die KOMPLETTE Historie
 #      enthaelt und aus der sich das Repository wiederherstellen laesst:
-#        git clone StatKompass-<datum>.bundle StatKompass
+#        git clone StatCompass-<datum>.bundle StatCompass
 #
 # Der Dateistand allein wuerde die Historie verlieren; das Bundle allein waere
 # ohne git nicht lesbar. Zusammen deckt beides den Ernstfall ab.
 #
-#   ./tools/backup.sh              nach /mnt/m/Backup/StatKompass
+#   ./tools/backup.sh              nach $SK_BACKUP_DIR (Standard: ~/Backup/StatCompass)
 #   ./tools/backup.sh /pfad/ziel   woanders hin
+#
+# Dauerhaft anderes Ziel:  export SK_BACKUP_DIR=/mnt/m/Backup/StatCompass
 
 set -euo pipefail
 
 ADDON="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-ZIELBASIS="${1:-/mnt/m/Backup/StatKompass}"
+ZIELBASIS="${1:-${SK_BACKUP_DIR:-$HOME/Backup/StatCompass}}"
 DATUM="$(date +%Y-%m-%d_%H%M)"
 ZIEL="$ZIELBASIS/$DATUM"
 
@@ -35,7 +37,7 @@ done
 
 if [ ! -d "$LAUFWERK" ]; then
   rot "Das Ziel ist nicht erreichbar: $ZIELBASIS"
-  rot "Ist das RAID eingebunden?"
+  rot "Ist das Laufwerk eingebunden? Anderes Ziel: SK_BACKUP_DIR setzen."
   exit 1
 fi
 
@@ -48,16 +50,16 @@ info "Sichere Dateistand nach $ZIEL ..."
 
 # --exclude, damit das gebaute Lua und die .git-Innereien nicht mitkommen -
 # fuer die Historie gibt es unten das Bundle.
-tar czf "$ZIEL/StatKompass-$DATUM.tar.gz" \
+tar czf "$ZIEL/StatCompass-$DATUM.tar.gz" \
   -C "$(dirname "$ADDON")" \
-  --exclude='StatKompass/.werkzeuge' \
-  --exclude='StatKompass/.git' \
-  --exclude='StatKompass/.idea' \
+  --exclude='StatCompass/.werkzeuge' \
+  --exclude='StatCompass/.git' \
+  --exclude='StatCompass/.idea' \
   "$(basename "$ADDON")"
 
 # Zusaetzlich unverpackt, damit man ohne Werkzeug hineinschauen kann.
 mkdir -p "$ZIEL/dateien"
-tar xzf "$ZIEL/StatKompass-$DATUM.tar.gz" -C "$ZIEL/dateien"
+tar xzf "$ZIEL/StatCompass-$DATUM.tar.gz" -C "$ZIEL/dateien"
 
 gruen "  Dateistand gesichert."
 
@@ -66,7 +68,7 @@ gruen "  Dateistand gesichert."
 # ---------------------------------------------------------------------------
 if [ -d "$ADDON/.git" ]; then
   info "Sichere Git-Historie ..."
-  git -C "$ADDON" bundle create "$ZIEL/StatKompass-$DATUM.bundle" --all >/dev/null 2>&1
+  git -C "$ADDON" bundle create "$ZIEL/StatCompass-$DATUM.bundle" --all >/dev/null 2>&1
   gruen "  Historie gesichert (git clone <datei>.bundle zum Zurueckholen)."
 else
   rot "  Kein .git-Ordner - es wird nur der Dateistand gesichert."
@@ -92,8 +94,8 @@ fi
   echo "Dateien: $(find "$ADDON" -type f -not -path '*/.git/*' -not -path '*/.werkzeuge/*' | wc -l)"
   echo
   echo "Zurueckholen:"
-  echo "  Dateien:   tar xzf StatKompass-$DATUM.tar.gz"
-  echo "  Mit Historie: git clone StatKompass-$DATUM.bundle StatKompass"
+  echo "  Dateien:   tar xzf StatCompass-$DATUM.tar.gz"
+  echo "  Mit Historie: git clone StatCompass-$DATUM.bundle StatCompass"
   echo
   echo "Pruefsummen kontrollieren:"
   echo "  cd $ZIEL && sha256sum -c PRUEFSUMMEN.txt"

@@ -17,7 +17,7 @@
 -- Deshalb greift keine andere Datei mehr direkt auf eine WoW-Funktion zu.
 -- Alles laeuft hier durch. Diese Datei
 --   * sucht fuer jeden Zweck die erste vorhandene Fassung aus einer Liste,
---   * merkt sich, WELCHE sie genommen hat (fuer  /sk doctor ),
+--   * merkt sich, WELCHE sie genommen hat (fuer  /statcompass doctor ),
 --   * faengt Fehler beim Aufruf ab, damit ein gesperrter Wert das Addon nicht
 --     mitreisst (Midnight sperrt mit "Secret Values" einiges).
 --
@@ -33,7 +33,7 @@ local A = SK.API
 A.fn = {}
 
 -- Woher stammt sie? zweck -> "C_SpecializationInfo.GetSpecialization"
--- oder false, wenn gar nichts gefunden wurde. Liest  /sk doctor  aus.
+-- oder false, wenn gar nichts gefunden wurde. Liest  /statcompass doctor  aus.
 A.quelle = {}
 
 -- Laufzeitfehler pro Zweck, falls ein Aufruf geworfen hat.
@@ -100,7 +100,7 @@ end
 -- ---------------------------------------------------------------------------
 -- Liefert bei fehlender Funktion ODER bei einem Fehler im Aufruf den
 -- Ersatzwert zurueck. Das Addon rechnet dann mit 0 weiter statt auszusteigen -
--- und  /sk doctor  zeigt hinterher genau, wo es geklemmt hat.
+-- und  /statcompass doctor  zeigt hinterher genau, wo es geklemmt hat.
 --
 -- Die Auswertung steht bewusst in einer eigenen Funktion: Nur so lassen sich
 -- BELIEBIG VIELE Rueckgabewerte durchreichen. Schreibt man stattdessen
@@ -124,6 +124,18 @@ function A.Rufe(zweck, ersatz, ...)
     if not fn then return ersatz end
 
     return auswerten(zweck, ersatz, pcall(fn, ...))
+end
+
+-- ---------------------------------------------------------------------------
+-- Eine globale Textkonstante des Spiels lesen
+-- ---------------------------------------------------------------------------
+-- Fuer Dinge wie STAT_CRITICAL_STRIKE: Die stehen in jeder Sprache fertig
+-- uebersetzt bereit, sind aber eben nur Variablen - fehlt eine, ist sie
+-- einfach nil. Der Ersatzwert kommt dann aus den eigenen Sprachdateien.
+function A.Text(name, ersatz)
+    local wert = _G[name]
+    if type(wert) == "string" and wert ~= "" then return wert end
+    return ersatz
 end
 
 -- ===========================================================================
@@ -184,7 +196,7 @@ A.CR = {
     versatility = CR_VERSATILITY_DAMAGE_DONE or 29,
 }
 
--- Welche davon musste auf den Rueckfall zurueckgreifen? Zeigt  /sk doctor .
+-- Welche davon musste auf den Rueckfall zurueckgreifen? Zeigt  /statcompass doctor .
 A.CR_ERSATZ = {
     crit        = (CR_CRIT_MELEE              == nil),
     haste       = (CR_HASTE_MELEE             == nil),
@@ -196,7 +208,7 @@ A.CR_ERSATZ = {
 -- Bericht fuer die Selbstdiagnose
 -- ---------------------------------------------------------------------------
 -- Rueckgabe: Liste von { zweck, quelle, ok, fehler }, alphabetisch sortiert,
--- damit die Ausgabe von  /sk doctor  bei jedem Aufruf gleich aussieht.
+-- damit die Ausgabe von  /statcompass doctor  bei jedem Aufruf gleich aussieht.
 -- ===========================================================================
 function A.Bericht()
     local liste = {}

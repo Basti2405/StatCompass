@@ -39,6 +39,14 @@ function S.Spec()
     if not index then return nil, nil end
 
     local id, name = A.Rufe("GetSpecializationInfo", nil, index)
+
+    -- Die ID kommt an, der Name nicht? Dann liefert GetSpecializationInfo
+    -- gerade nur einen Teil - statt einer leeren Ueberschrift kommt der
+    -- Rueckfall aus Daten\Breakpoints.lua zum Zug.
+    if id and not name then
+        name = SK.Eingebaut.specNamen and SK.Eingebaut.specNamen[id] or nil
+    end
+
     return id, name
 end
 
@@ -105,7 +113,7 @@ end
 -- Weichen die Zahlen ab, stimmt "Rating pro Prozent" in Daten\Ratings.lua
 -- nicht mehr - typischerweise nach einer Stufenerhoehung.
 --
--- Genau dafuer gibt es den Befehl  /sk test .
+-- Genau dafuer gibt es den Befehl  /statcompass test .
 --
 -- Rueckgabe: Liste von { stat, unser, spiel, abweichung, ok }
 function S.Selbsttest()

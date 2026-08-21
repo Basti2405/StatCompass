@@ -1,11 +1,12 @@
 -- Daten/Ratings.lua - Umrechnungswerte und Diminishing-Returns-Stufen
 --
 -- WoW uebergibt jeder Lua-Datei zwei versteckte Argumente ueber "..." :
---   addonName = der Ordnername ("StatKompass")
+--   addonName = der Ordnername ("StatCompass")
 --   SK        = eine private Tabelle, die ALLE Dateien dieses Addons teilen.
 local addonName, SK = ...
 
--- Diese Datei laedt als erste, also legt sie die Container an.
+-- Erste Datei, die eigene Daten mitbringt (vor ihr laufen nur die
+-- Sprachdateien und Kompat.lua) - also legt sie den Container an.
 SK.Eingebaut = SK.Eingebaut or {}
 
 -- ===========================================================================
@@ -79,11 +80,17 @@ SK.Eingebaut.drStufen = {
 -- ===========================================================================
 SK.STAT_KEYS = { "crit", "haste", "mastery", "versatility" }
 
+-- Die Namen holt sich das Addon aus den Textkonstanten des Spiels. Die sind
+-- bereits in der Sprache des Clients und heissen genau so wie im
+-- Charakterfenster - besser als jede eigene Uebersetzung. Nur falls eine
+-- Konstante fehlt, greift der Wert aus den eigenen Sprachdateien.
+local L = SK.L
+
 SK.STAT_NAMEN = {
-    crit        = "Kritischer Trefferwert",
-    haste       = "Tempo",
-    mastery     = "Meisterschaft",
-    versatility = "Vielseitigkeit",
+    crit        = SK.API.Text("STAT_CRITICAL_STRIKE", L.STAT_CRIT),
+    haste       = SK.API.Text("STAT_HASTE",           L.STAT_HASTE),
+    mastery     = SK.API.Text("STAT_MASTERY",         L.STAT_MASTERY),
+    versatility = SK.API.Text("STAT_VERSATILITY",     L.STAT_VERSATILITY),
 }
 
 -- Farben fuer die Balken (r, g, b) - lehnen sich an die Blizzard-Statfarben an.

@@ -6,28 +6,33 @@
 -- Fehlerhafte Pakete werden mit Zeilennummer gemeldet und NICHT uebernommen -
 -- der bisherige Stand bleibt in dem Fall unangetastet.
 local addonName, SK = ...
+local L = SK.L
 
 SK.UpdateDialog = SK.UpdateDialog or {}
 local U = SK.UpdateDialog
 
 local BREITE, HOEHE = 520, 420
 
-local BEISPIEL = [[
-SK1
-#patch=12.0.7
-#stand=2026-08-17
-#quelle=hier eintragen, woher die Zahlen stammen
-r|haste|44
-r|crit|46
-r|mastery|46
-r|versatility|54
-b|*|haste|p100|GCD-Minimum (0,75 s)|Ab 100 Prozent Tempo sinkt die globale Abklingzeit nicht weiter.
-]]
+-- Die Vorlage wird erst beim Klick gebaut, damit sie die Sprachdatei benutzen
+-- kann. Aufbau und Zeilentypen sind in Logik\ImportExport.lua beschrieben.
+local function beispiel()
+    return table.concat({
+        "SK1",
+        "#patch=12.1.0",
+        "#stand=2026-08-18",
+        "#quelle=" .. L.EXAMPLE_SOURCE,
+        "r|haste|44",
+        "r|crit|46",
+        "r|mastery|46",
+        "r|versatility|54",
+        "b|*|haste|p100|" .. L.EXAMPLE_TITLE .. "|" .. L.EXAMPLE_INFO,
+    }, "\n")
+end
 
 function U:Build()
     if self.frame then return end
 
-    local f = CreateFrame("Frame", "StatKompassUpdateFrame", UIParent, "BackdropTemplate")
+    local f = CreateFrame("Frame", "StatCompassUpdateFrame", UIParent, "BackdropTemplate")
     f:SetSize(BREITE, HOEHE)
     f:SetPoint("CENTER")
     f:SetFrameStrata("DIALOG")
@@ -46,15 +51,13 @@ function U:Build()
 
     local titel = f:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     titel:SetPoint("TOP", 0, -12)
-    titel:SetText("Daten aktualisieren")
+    titel:SetText(L.DLG_TITLE)
 
     local hilfe = f:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     hilfe:SetPoint("TOPLEFT", 16, -38)
     hilfe:SetWidth(BREITE - 32)
     hilfe:SetJustifyH("LEFT")
-    hilfe:SetText("Update-Paket hier einfuegen (Strg+V) und auf \"Einspielen\" klicken. "
-        .. "Das Paket liegt in den gespeicherten Variablen und ueberlebt ein Addon-Update. "
-        .. "Mit \"Exportieren\" bekommst du den aktuellen Stand als Text zum Weitergeben.")
+    hilfe:SetText(L.DLG_HELP)
 
     local schliessen = CreateFrame("Button", nil, f, "UIPanelCloseButton")
     schliessen:SetPoint("TOPRIGHT", 0, 0)
@@ -74,7 +77,7 @@ function U:Build()
     })
     rahmen:SetBackdropColor(0.05, 0.05, 0.05, 1)
 
-    local scroll = CreateFrame("ScrollFrame", "StatKompassUpdateScroll", rahmen, "UIPanelScrollFrameTemplate")
+    local scroll = CreateFrame("ScrollFrame", "StatCompassUpdateScroll", rahmen, "UIPanelScrollFrameTemplate")
     scroll:SetPoint("TOPLEFT", 8, -8)
     scroll:SetPoint("BOTTOMRIGHT", -28, 8)
 
@@ -107,7 +110,7 @@ function U:Build()
         return b
     end
 
-    local btnEin = knopf("Einspielen", 100, "BOTTOMLEFT", 16)
+    local btnEin = knopf(L.BTN_IMPORT, 100, "BOTTOMLEFT", 16)
     btnEin:SetScript("OnClick", function()
         local text = f.edit:GetText()
         local paket, fehler = SK.IO.Import(text)
@@ -117,7 +120,7 @@ function U:Build()
             local zeilen = {}
             for i = 1, math.min(#fehler, 3) do table.insert(zeilen, fehler[i]) end
             if #fehler > 3 then
-                table.insert(zeilen, ("... und %d weitere."):format(#fehler - 3))
+                table.insert(zeilen, (L.MSG_ERR_MORE):format(#fehler - 3))
             end
             f.meldung:SetText("|cffff5555" .. table.concat(zeilen, "\n") .. "|r")
             return
@@ -127,29 +130,28 @@ function U:Build()
         SK.Fenster:Refresh()
 
         local anzahl = SK.Daten.PaketZaehlen(paket)
-        f.meldung:SetText(("|cff66ff77Paket uebernommen: %d Breakpoint(e), Stand %s.|r")
-            :format(anzahl, paket.meta.stand or "unbekannt"))
+        f.meldung:SetText((L.MSG_IMPORTED):format(anzahl, paket.meta.stand or L.UNKNOWN))
     end)
 
-    local btnExport = knopf("Exportieren", 100, "BOTTOMLEFT", 122)
+    local btnExport = knopf(L.BTN_EXPORT, 100, "BOTTOMLEFT", 122)
     btnExport:SetScript("OnClick", function()
         f.edit:SetText(SK.IO.Export())
         f.edit:HighlightText()
         f.edit:SetFocus()
-        f.meldung:SetText("|cffffcc33Aktueller Stand steht oben - mit Strg+C kopieren.|r")
+        f.meldung:SetText(L.MSG_EXPORTED)
     end)
 
-    local btnBeispiel = knopf("Beispiel", 90, "BOTTOMLEFT", 228)
+    local btnBeispiel = knopf(L.BTN_EXAMPLE, 90, "BOTTOMLEFT", 228)
     btnBeispiel:SetScript("OnClick", function()
-        f.edit:SetText(strtrim(BEISPIEL))
-        f.meldung:SetText("|cffffcc33Beispielpaket eingefuegt - als Vorlage gedacht.|r")
+        f.edit:SetText(beispiel())
+        f.meldung:SetText(L.MSG_EXAMPLE)
     end)
 
-    local btnWeg = knopf("Paket entfernen", 130, "BOTTOMRIGHT", -16)
+    local btnWeg = knopf(L.BTN_REMOVE, 130, "BOTTOMRIGHT", -16)
     btnWeg:SetScript("OnClick", function()
         SK.Daten.PaketLoeschen()
         SK.Fenster:Refresh()
-        f.meldung:SetText("|cff66ff77Update-Paket entfernt - es gelten wieder die eingebauten Daten.|r")
+        f.meldung:SetText(L.MSG_REMOVED)
     end)
 
     self.frame = f

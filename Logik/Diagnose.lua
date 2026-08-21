@@ -1,4 +1,4 @@
--- Logik/Diagnose.lua - die Selbstdiagnose hinter  /sk doctor
+-- Logik/Diagnose.lua - die Selbstdiagnose hinter  /statcompass doctor
 --
 -- ===========================================================================
 -- WOZU?
@@ -21,6 +21,7 @@
 -- die Diagnose in Tests\logik-test.lua ohne Spiel pruefen.
 -- ===========================================================================
 local addonName, SK = ...
+local L = SK.L
 
 SK.Diagnose = SK.Diagnose or {}
 local Dg = SK.Diagnose
@@ -64,16 +65,13 @@ function Dg.Sammeln()
     }
 
     if not version then
-        befund("Spiel", HINWEIS, "Spielversion nicht lesbar - laeuft das ausserhalb von WoW?")
+        befund(L.AREA_GAME, HINWEIS, L.DIAG_NO_VERSION)
     elseif eigeneToc and d.spiel.tocVersion then
         if eigeneToc == d.spiel.tocVersion then
-            befund("Spiel", OK, ("Interface %d passt zu Build %s."):format(eigeneToc, tostring(version)))
+            befund(L.AREA_GAME, OK, (L.DIAG_TOC_OK):format(eigeneToc, tostring(version)))
         else
-            befund("Spiel", HINWEIS, ("Interface der .toc ist %d, das Spiel laeuft auf %d (%s). "):format(
-                eigeneToc, d.spiel.tocVersion, tostring(version))
-                .. "Das Addon wird als veraltet markiert, funktioniert aber. "
-                .. "In StatKompass.toc die erste Zeile auf "
-                .. tostring(d.spiel.tocVersion) .. " setzen.")
+            befund(L.AREA_GAME, HINWEIS, (L.DIAG_TOC_OLD):format(
+                eigeneToc, d.spiel.tocVersion, tostring(version), d.spiel.tocVersion))
         end
     end
 
@@ -86,13 +84,11 @@ function Dg.Sammeln()
     local entbehrl = A.FehlendeOptionale()
 
     if fehlend == 0 and entbehrl == 0 then
-        befund("Schnittstellen", OK, ("Alle %d benoetigten Funktionen gefunden."):format(#d.api))
+        befund(L.AREA_API, OK, (L.DIAG_API_ALL_OK):format(#d.api))
     elseif fehlend == 0 then
-        befund("Schnittstellen", HINWEIS, ("%d entbehrliche Funktion(en) fehlen - siehe Liste unten. "):format(entbehrl)
-            .. "Die Breakpoints stimmen trotzdem; es fehlen nur Angaben im Mouseover.")
+        befund(L.AREA_API, HINWEIS, (L.DIAG_API_OPT):format(entbehrl))
     else
-        befund("Schnittstellen", FEHLER, ("%d unverzichtbare Funktion(en) fehlen - siehe Liste unten. "):format(fehlend)
-            .. "Das ist der Fall, in dem das Addon still falsche Zahlen zeigen wuerde.")
+        befund(L.AREA_API, FEHLER, (L.DIAG_API_REQ):format(fehlend))
     end
 
     -- Ersatzwerte bei den Combat-Rating-Konstanten sind kein Fehler, aber
@@ -102,15 +98,13 @@ function Dg.Sammeln()
         if A.CR_ERSATZ[statKey] then table.insert(ersatz, statKey) end
     end
     if #ersatz > 0 then
-        befund("Schnittstellen", HINWEIS,
-            "Rueckfall auf feste Rating-Konstanten bei: " .. table.concat(ersatz, ", ")
-            .. ". Funktioniert, sollte aber in Logik\\Kompat.lua nachgezogen werden.")
+        befund(L.AREA_API, HINWEIS, (L.DIAG_CR_FALLBACK):format(table.concat(ersatz, ", ")))
     end
 
     -- Laufzeitfehler aus frueheren Aufrufen.
     for _, e in ipairs(d.api) do
         if e.fehler then
-            befund("Schnittstellen", FEHLER, ("%s hat einen Fehler geworfen: %s"):format(e.zweck, e.fehler))
+            befund(L.AREA_API, FEHLER, (L.DIAG_API_ERROR):format(e.zweck, e.fehler))
         end
     end
 
@@ -127,15 +121,11 @@ function Dg.Sammeln()
     d.summeRating = summeRating
 
     if summeRating == 0 then
-        befund("Werte", HINWEIS, "Alle vier Ratings sind 0. Bei einem frischen Charakter ohne "
-            .. "Ausruestung ist das richtig - sonst werden die Werte nicht gelesen.")
+        befund(L.AREA_VALUES, HINWEIS, L.DIAG_ALL_ZERO)
     elseif abweichungen == 0 then
-        befund("Werte", OK, "Eigene Rechnung und Spiel stimmen bei allen vier Werten ueberein - "
-            .. "die Daten passen zum laufenden Patch.")
+        befund(L.AREA_VALUES, OK, L.DIAG_VALUES_OK)
     else
-        befund("Werte", FEHLER, ("%d von %d Werten weichen ab. \"Rating pro Prozent\" in "):format(
-            abweichungen, #d.werte)
-            .. "Daten\\Ratings.lua ist fuer diesen Patch veraltet.")
+        befund(L.AREA_VALUES, FEHLER, (L.DIAG_VALUES_BAD):format(abweichungen, #d.werte))
     end
 
     -- -----------------------------------------------------------------------
@@ -147,18 +137,16 @@ function Dg.Sammeln()
     if specID then
         local n = #SK.Daten.Breakpoints(specID)
         d.breakpointAnzahl = n
-        befund("Spezialisierung", OK, ("%s (ID %d), %d Breakpoint(e) hinterlegt."):format(
-            tostring(specName), specID, n))
+        befund(L.AREA_SPEC, OK, (L.DIAG_SPEC_OK):format(tostring(specName), specID, n))
     else
         d.breakpointAnzahl = #SK.Daten.Breakpoints(nil)
-        befund("Spezialisierung", HINWEIS, "Keine Spezialisierung gelesen. Entweder ist noch keine "
-            .. "gewaehlt (niedrige Stufe), oder die Schnittstelle dafuer fehlt - siehe oben.")
+        befund(L.AREA_SPEC, HINWEIS, L.DIAG_SPEC_NONE)
     end
 
     -- -----------------------------------------------------------------------
     -- 5. Gespeicherte Daten
     -- -----------------------------------------------------------------------
-    local db = StatKompassDB
+    local db = StatCompassDB
     local meta = SK.Daten.Meta()
     d.speicher = {
         vorhanden = (type(db) == "table"),
@@ -168,13 +156,12 @@ function Dg.Sammeln()
     }
 
     if type(db) ~= "table" then
-        befund("Speicher", HINWEIS, "StatKompassDB fehlt noch. Nach dem ersten vollstaendigen "
-            .. "Ausloggen ist sie da - vorher ist das normal.")
+        befund(L.AREA_STORAGE, HINWEIS, L.DIAG_DB_MISSING)
     elseif meta.istPaket then
-        befund("Speicher", OK, ("Update-Paket aktiv (Patch %s, Stand %s)."):format(
+        befund(L.AREA_STORAGE, OK, (L.DIAG_PKG_ACTIVE):format(
             tostring(meta.patch), tostring(meta.stand)))
     else
-        befund("Speicher", OK, ("Eingebaute Daten aktiv (Patch %s, Stand %s)."):format(
+        befund(L.AREA_STORAGE, OK, (L.DIAG_BUILTIN):format(
             tostring(meta.patch), tostring(meta.stand)))
     end
 
@@ -205,15 +192,15 @@ function Dg.Ausgeben(drucke, d)
         [FEHLER]  = "|cffff5555",
     }
     local ZEICHEN = {
-        [OK]      = "ok     ",
-        [HINWEIS] = "hinweis",
-        [FEHLER]  = "FEHLER ",
+        [OK]      = L.DIAG_LVL_OK,
+        [HINWEIS] = L.DIAG_LVL_NOTE,
+        [FEHLER]  = L.DIAG_LVL_FAIL,
     }
 
-    drucke(("|cff33ccffStat-Kompass %s|r - Selbstdiagnose"):format(tostring(d.spiel.addonVersion)))
+    drucke((L.DIAG_TITLE):format(tostring(d.spiel.addonVersion)))
 
     if d.spiel.version then
-        drucke(("   Spiel: %s (Build %s, Interface %s)"):format(
+        drucke((L.DIAG_GAME_LINE):format(
             tostring(d.spiel.version), tostring(d.spiel.build), tostring(d.spiel.tocVersion)))
     end
 
@@ -226,33 +213,36 @@ function Dg.Ausgeben(drucke, d)
     -- Die Schnittstellenliste - nur ausklappen, wenn etwas fehlt. Sonst ist
     -- sie bloss Rauschen.
     if A.FehlendeAnzahl() > 0 or A.FehlendeOptionale() > 0 then
-        drucke("   |cffffff00Schnittstellen im Einzelnen:|r")
+        drucke(L.DIAG_API_DETAIL)
         for _, e in ipairs(d.api) do
             if e.ok then
-                drucke(("      |cff66ff77gefunden|r  %-22s %s"):format(e.zweck, e.quelle))
+                drucke(("      |cff66ff77%s|r  %-22s %s"):format(L.DIAG_API_FOUND, e.zweck, e.quelle))
             elseif e.optional then
-                drucke(("      |cffffcc33fehlt   |r  %-22s (entbehrlich)"):format(e.zweck))
+                drucke(("      |cffffcc33%s|r  %-22s %s"):format(
+                    L.DIAG_API_MISS_O, e.zweck, L.DIAG_API_OPTIONAL))
             else
-                drucke(("      |cffff5555FEHLT   |r  %-22s (unverzichtbar)"):format(e.zweck))
+                drucke(("      |cffff5555%s|r  %-22s %s"):format(
+                    L.DIAG_API_MISS_R, e.zweck, L.DIAG_API_REQUIRED))
             end
         end
     end
 
     -- Die Werte-Tabelle.
-    drucke("   |cffffff00Werte:|r")
+    drucke(L.DIAG_VALUES_HEAD)
     for _, e in ipairs(d.werte) do
         local farbe = e.ok and "|cff66ff77" or "|cffff5555"
-        drucke(("      %s%s|r  %-22s Rating %6d   wir %6.2f   Spiel %6.2f"):format(
-            farbe, e.ok and "ok    " or "FEHLER", SK.STAT_NAMEN[e.stat], e.rating, e.unser, e.spiel))
+        drucke((L.DIAG_VALUE_ROW):format(
+            farbe, e.ok and L.SELFTEST_OK or L.SELFTEST_FAIL,
+            SK.STAT_NAMEN[e.stat], e.rating, e.unser, e.spiel))
     end
 
     -- Schlusssatz.
     if d.gesamt == OK then
-        drucke("   |cff66ff77Ergebnis: Das Addon arbeitet korrekt.|r")
+        drucke(L.DIAG_RESULT_OK)
     elseif d.gesamt == HINWEIS then
-        drucke("   |cffffcc33Ergebnis: Laeuft, aber es gibt Hinweise (siehe oben).|r")
+        drucke(L.DIAG_RESULT_NOTE)
     else
-        drucke("   |cffff5555Ergebnis: Es gibt echte Fehler - die Anzeige ist gerade nicht verlaesslich.|r")
+        drucke(L.DIAG_RESULT_FAIL)
     end
 
     return d

@@ -11,10 +11,11 @@
 --   * Ein Update braucht KEINE Dateiaenderung - nur Text einfuegen.
 --   * Das Paket ueberlebt eine Neuinstallation des Addons (SavedVariables).
 --   * Ein kaputtes Paket macht nichts kaputt - loeschen und der eingebaute
---     Stand ist sofort wieder aktiv (/sk reset).
+--     Stand ist sofort wieder aktiv (/statcompass reset).
 --
 -- Fachbegriff dafuer: "Overlay" - eine Schicht, die ueber den Grunddaten liegt.
 local addonName, SK = ...
+local L = SK.L
 
 SK.Daten = SK.Daten or {}
 local D = SK.Daten
@@ -23,8 +24,8 @@ local D = SK.Daten
 -- Zugriff auf das importierte Paket (kann nil sein - dann gilt nur Eingebautes)
 -- ---------------------------------------------------------------------------
 local function paket()
-    -- StatKompassDB existiert erst nach PLAYER_LOGIN. Vorher: nil zurueck.
-    return StatKompassDB and StatKompassDB.paket or nil
+    -- StatCompassDB existiert erst nach PLAYER_LOGIN. Vorher: nil zurueck.
+    return StatCompassDB and StatCompassDB.paket or nil
 end
 
 -- ===========================================================================
@@ -116,7 +117,7 @@ function D.Meta()
         return {
             patch  = p.meta.patch  or "?",
             stand  = p.meta.stand  or "?",
-            quelle = p.meta.quelle or "Update-Paket",
+            quelle = p.meta.quelle or L.PKG_SOURCE,
             istPaket = true,
         }
     end
@@ -130,14 +131,14 @@ end
 -- Paket setzen / entfernen
 -- ===========================================================================
 function D.PaketSetzen(neuesPaket)
-    if not StatKompassDB then return false end
-    StatKompassDB.paket = neuesPaket
+    if not StatCompassDB then return false end
+    StatCompassDB.paket = neuesPaket
     return true
 end
 
 function D.PaketLoeschen()
-    if not StatKompassDB then return false end
-    StatKompassDB.paket = nil
+    if not StatCompassDB then return false end
+    StatCompassDB.paket = nil
     return true
 end
 

@@ -41,7 +41,7 @@ if not defined ZIELBASIS (
   exit /b 1
 )
 
-set "ZIEL=%ZIELBASIS%\StatKompass"
+set "ZIEL=%ZIELBASIS%\StatCompass"
 
 echo.
 echo   Quelle : %QUELLE%
@@ -53,7 +53,7 @@ rem Ist dort schon etwas?
 rem ---------------------------------------------------------------------------
 if exist "%ZIEL%" (
   rem Junctions erkennt man in der dir-Ausgabe am Merkmal <JUNCTION>.
-  dir /al "%ZIELBASIS%" 2>nul | find /i "StatKompass" >nul
+  dir /al "%ZIELBASIS%" 2>nul | find /i "StatCompass" >nul
   if !errorlevel! equ 0 (
     echo   Es besteht bereits eine Junction.
     echo   Zum Erneuern wird sie zuerst entfernt.

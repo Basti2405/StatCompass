@@ -1,13 +1,14 @@
--- Core.lua - Kern des Addons "Stat-Kompass"
+-- Core.lua - Kern des Addons "StatCompass"
 --
 -- Haelt alles zusammen: gespeicherte Daten, Ereignisse, Slash-Befehle.
 -- Laedt als LETZTE Datei, damit Daten, Logik und Oberflaeche schon bereitstehen.
 local addonName, SK = ...
+local L = SK.L
 
--- Global erreichbar machen, damit man im Spiel z. B. "/dump StatKompass" testen kann.
-_G.StatKompass = SK
+-- Global erreichbar machen, damit man im Spiel z. B. "/dump StatCompass" testen kann.
+_G.StatCompass = SK
 
-local PRAEFIX = "|cff33ccffStat-Kompass:|r "
+local PRAEFIX = "|cff33ccff" .. L.ADDON_NAME .. ":|r "
 
 local function sagen(text)
     print(PRAEFIX .. text)
@@ -42,33 +43,36 @@ end
 -- faellt es hier sofort auf - und nicht erst, wenn man sein Gear danach baut.
 -- ===========================================================================
 function SK.Selbsttest()
-    sagen("Selbsttest - eigene Rechnung gegen die Spiel-Schnittstelle:")
+    sagen(L.SELFTEST_HEADER)
 
     local allesOk = true
     for _, e in ipairs(SK.Spieler.Selbsttest()) do
         local farbe = e.ok and "|cff66ff77" or "|cffff5555"
-        local zeichen = e.ok and "ok  " or "FEHLER"
-        print(("   %s%s|r  %-22s Rating %6d   wir %.2f %%   Spiel %.2f %%"):format(
+        local zeichen = e.ok and L.SELFTEST_OK or L.SELFTEST_FAIL
+        print((L.SELFTEST_ROW):format(
             farbe, zeichen, SK.STAT_NAMEN[e.stat], e.rating, e.unser, e.spiel))
         if not e.ok then allesOk = false end
     end
 
     if allesOk then
-        sagen("Alles stimmt - die Daten passen zum aktuellen Patch.")
+        sagen(L.SELFTEST_ALL_OK)
     else
-        sagen("|cffff5555Abweichung gefunden.|r \"Rating pro Prozent\" in "
-            .. "Daten\\Ratings.lua ist veraltet. Neuen Wert ausrechnen: "
-            .. "Rating im Charakterfenster geteilt durch den Prozentwert "
-            .. "(bei niedrigem Rating, unter 30 %, ist das Verhaeltnis exakt).")
+        sagen(L.SELFTEST_MISMATCH)
     end
 end
 
 -- ===========================================================================
--- Slash-Befehl  /sk   (Alias: /statkompass)
+-- Slash-Befehl  /statcompass   (Aliase: /stc und /sk)
+-- ---------------------------------------------------------------------------
+-- Der lange Name steht bewusst vorn: Bei zwei Zeichen wie "/sk" ist die
+-- Wahrscheinlichkeit hoch, dass ein anderes Addon denselben Befehl belegt -
+-- dann gewinnt, wer zuletzt laedt. Der lange Name gehoert deshalb in die
+-- Dokumentation, die kurzen sind Bequemlichkeit.
 -- ===========================================================================
-SLASH_STATKOMPASS1 = "/sk"
-SLASH_STATKOMPASS2 = "/statkompass"
-SlashCmdList["STATKOMPASS"] = function(msg)
+SLASH_STATCOMPASS1 = "/statcompass"
+SLASH_STATCOMPASS2 = "/stc"
+SLASH_STATCOMPASS3 = "/sk"
+SlashCmdList["STATCOMPASS"] = function(msg)
     msg = strtrim((msg or ""):lower())
 
     if msg == "update" then
@@ -83,26 +87,32 @@ SlashCmdList["STATKOMPASS"] = function(msg)
     elseif msg == "id" then
         local id, name = SK.Spieler.Spec()
         if id then
-            sagen(("Deine Spezialisierung: |cffffff00%s|r  -  ID |cffffff00%d|r"):format(name, id))
-            sagen("Diese ID kommt in Daten\\Breakpoints.lua als Schluessel, z. B.  [" .. id .. "] = { ... }")
+            sagen((L.SPEC_RESULT):format(name, id))
+            sagen((L.SPEC_HINT_FILE):format(id))
         else
-            sagen("Es ist noch keine Spezialisierung gewaehlt.")
+            sagen(L.SPEC_NONE_YET)
         end
 
     elseif msg == "reset" then
         SK.Daten.PaketLoeschen()
-        StatKompassDB.fenster = { point = "CENTER", x = 0, y = 0, shown = true }
-        sagen("Update-Paket entfernt und Fenster zentriert. Es gelten wieder die eingebauten Daten.")
+        StatCompassDB.fenster = { point = "CENTER", x = 0, y = 0, shown = true }
+        sagen(L.RESET_DONE)
         ReloadUI()
 
     elseif msg == "help" then
-        print(PRAEFIX .. "Befehle:")
-        print("  |cffffff00/sk|r         - Fenster zeigen/verstecken")
-        print("  |cffffff00/sk doctor|r  - vollstaendige Selbstdiagnose (bei Problemen zuerst)")
-        print("  |cffffff00/sk update|r  - Update-Paket einspielen oder exportieren")
-        print("  |cffffff00/sk test|r    - pruefen, ob die Daten noch zum Patch passen")
-        print("  |cffffff00/sk id|r      - ID der aktuellen Spezialisierung anzeigen")
-        print("  |cffffff00/sk reset|r   - Update-Paket loeschen, Fenster zentrieren")
+        print(PRAEFIX .. L.HELP_HEADER)
+        -- Der Befehlsname bleibt in jeder Sprache gleich - nur die Erklaerung
+        -- dahinter wird uebersetzt.
+        local function hilfe(befehl, text)
+            print(("  |cffffff00/statcompass %s|r%s- %s"):format(
+                befehl, (" "):rep(math.max(1, 9 - #befehl)), text))
+        end
+        hilfe("",       L.HELP_TOGGLE)
+        hilfe("doctor", L.HELP_DOCTOR)
+        hilfe("update", L.HELP_UPDATE)
+        hilfe("test",   L.HELP_TEST)
+        hilfe("id",     L.HELP_ID)
+        hilfe("reset",  L.HELP_RESET)
 
     else
         SK.Fenster:Toggle()
@@ -129,26 +139,32 @@ loader:RegisterEvent("PLAYER_REGEN_ENABLED")     -- Kampf vorbei
 
 loader:SetScript("OnEvent", function(_, event, ...)
     if event == "PLAYER_LOGIN" then
-        StatKompassDB = StatKompassDB or {}
-        applyDefaults(StatKompassDB, DB_DEFAULTS)
+        -- Uebernahme aus der Zeit, als das Addon "StatKompass" hiess. Die alte
+        -- Variable steht dafuer noch in der .toc; sie kann dort in einer
+        -- spaeteren Version ersatzlos entfallen.
+        if StatKompassDB and not StatCompassDB then
+            StatCompassDB = StatKompassDB
+            StatKompassDB = nil
+        end
+
+        StatCompassDB = StatCompassDB or {}
+        applyDefaults(StatCompassDB, DB_DEFAULTS)
 
         SK.Fenster:Build()
 
-        if StatKompassDB.fenster.shown then
+        if StatCompassDB.fenster.shown then
             SK.Fenster:Show()
         end
 
-        sagen("geladen. Tippe |cffffff00/sk|r zum Oeffnen, |cffffff00/sk help|r fuer alle Befehle.")
+        sagen(L.LOADED)
 
         -- Stille Abnahme beim Start: Fehlt eine WoW-Funktion, wuerde das
         -- Addon ohne Vorwarnung Nullen anzeigen. Das darf man nicht
         -- uebersehen koennen, also wird hier einmal laut gewarnt.
-        -- Alles andere (Zahlenvergleich, Datenstand) bleibt  /sk doctor .
+        -- Alles andere (Zahlenvergleich, Datenstand) bleibt  /statcompass doctor .
         local fehlend = SK.API.FehlendeAnzahl()
         if fehlend > 0 then
-            sagen(("|cffff5555Achtung: %d WoW-Funktion(en) nicht gefunden.|r "):format(fehlend)
-                .. "Die angezeigten Werte sind gerade nicht verlaesslich. "
-                .. "Einzelheiten mit |cffffff00/sk doctor|r.")
+            sagen((L.API_MISSING_WARN):format(fehlend))
         end
         return
     end

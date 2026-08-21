@@ -64,9 +64,9 @@ jobs:
       # /sk doctor im Spiel beantworten - das steht so auch im README.
       - name: Form der .toc prüfen
         run: |
-          nummer=$(grep -m1 '^## Interface:' StatKompass.toc | grep -oE '[0-9]+')
+          nummer=$(grep -m1 '^## Interface:' StatCompass.toc | grep -oE '[0-9]+')
           if [ -z "$nummer" ]; then
-            echo "Keine Interface-Nummer in StatKompass.toc gefunden."
+            echo "Keine Interface-Nummer in StatCompass.toc gefunden."
             exit 1
           fi
           if ! echo "$nummer" | grep -qE '^[0-9]{5,6}$'; then
@@ -77,9 +77,9 @@ jobs:
 
           # Die Version muss ebenfalls dastehen - ohne sie zeigt /sk doctor
           # nur ein Fragezeichen an.
-          version=$(grep -m1 '^## Version:' StatKompass.toc | sed 's/.*: *//')
+          version=$(grep -m1 '^## Version:' StatCompass.toc | sed 's/.*: *//')
           if [ -z "$version" ]; then
-            echo "Keine Version in StatKompass.toc gefunden."
+            echo "Keine Version in StatCompass.toc gefunden."
             exit 1
           fi
           echo "Version:   $version"
