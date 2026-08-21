@@ -28,7 +28,11 @@ jobs:
       # der Version in der .toc passt - im Spiel steht dann eine andere Nummer
       # als auf der Downloadseite. Lieber hier abbrechen als hinterher ein
       # falsch beschriftetes Paket zurueckziehen.
+      # Nur bei einem Tag-Push - beim manuellen Start ueber "Run workflow"
+      # steht in GITHUB_REF der Zweig, und der Vergleich koennte nie aufgehen.
+      # Der Packager baut daraus dann eine Alpha aus dem aktuellen Stand.
       - name: Tag gegen die Version in der .toc pruefen
+        if: startsWith(github.ref, 'refs/tags/')
         run: |
           tag="${GITHUB_REF#refs/tags/}"
           toc=$(grep -m1 '^## Version:' StatCompass.toc | sed 's/.*: *//' | tr -d '\r')
