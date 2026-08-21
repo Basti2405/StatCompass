@@ -582,11 +582,11 @@ do
 end
 _G.GetLocale = nil
 
-local function platzhalter(text)
-    local n = 0
+local function platzhalter(vorlage)
+    local anzahl = 0
     -- "%%" ist ein ausgeschriebenes Prozentzeichen und zaehlt nicht mit.
-    for _ in tostring(text):gsub("%%%%", ""):gmatch("%%[-+ #0-9.]*[a-zA-Z]") do n = n + 1 end
-    return n
+    for _ in tostring(vorlage):gsub("%%%%", ""):gmatch("%%[-+ #0-9.]*[a-zA-Z]") do anzahl = anzahl + 1 end
+    return anzahl
 end
 
 local unbekannt, abweichend, uebersetzt = {}, {}, 0
@@ -644,11 +644,11 @@ local boesePakete = {
     ["|c im Titel"] = "SK1\nb|*|haste|p50||cffff0000rot|r|Text",
 }
 
-for name, text in pairs(boesePakete) do
-    local paket = SK.IO.Import(text)
+for name, inhalt in pairs(boesePakete) do
+    local gelesen = SK.IO.Import(inhalt)
     local gefunden = false
-    if paket and paket.breakpoints then
-        for _, eintraege in pairs(paket.breakpoints) do
+    if gelesen and gelesen.breakpoints then
+        for _, eintraege in pairs(gelesen.breakpoints) do
             for _, e in ipairs(eintraege) do
                 if tostring(e.titel):find("|", 1, true)
                    or tostring(e.info or ""):find("|", 1, true) then

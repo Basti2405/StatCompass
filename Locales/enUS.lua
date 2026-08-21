@@ -1,11 +1,12 @@
 -- Locales/enUS.lua - English base language (and the fallback for every other)
 --
--- luacheck: max_line_length false
+-- luacheck: max_line_length 400
 --
 -- Ein Satz gehoert in EINE Zeile. Umbrueche mit ".." mitten im Text machen das
 -- Uebersetzen fehleranfaellig: Man sieht nicht mehr auf einen Blick, was am
 -- Ende dasteht, und ein vergessenes Leerzeichen an der Nahtstelle faellt erst
--- im Spiel auf. Die Direktive oben gilt nur fuer diese Datei.
+-- im Spiel auf. Die Direktive oben gilt nur fuer diese Datei; inline erwartet
+-- luacheck eine Zahl, ein "false" waere dort ein Fehler.
 -- ===========================================================================
 -- WIE DIE SPRACHDATEIEN ARBEITEN
 -- ---------------------------------------------------------------------------

@@ -15,14 +15,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # Lua 5.1 wird aus dem Quelltext gebaut - genau die Version, die WoW
       # benutzt. Die Distributionspakete liefern 5.4, und die beiden
       # unterscheiden sich genug, dass ein Test unter 5.4 wenig aussagt.
       - name: Gebautes Lua aus dem Zwischenspeicher holen
         id: lua-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .werkzeuge
           key: lua-5.1.5-${{ runner.os }}
@@ -42,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: luacheck installieren
         run: sudo apt-get update && sudo apt-get install -y lua-check
@@ -57,7 +57,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # Ein reiner Formcheck: Die erste Zeile muss eine funfstellige
       # Interface-Nummer sein. Ob sie zum LAUFENDEN Patch passt, kann nur
