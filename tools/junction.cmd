@@ -91,6 +91,6 @@ if errorlevel 1 (
 echo.
 echo   Fertig. Naechste Schritte im Spiel:
 echo     1. /reload        (oder WoW neu starten)
-echo     2. /sk doctor     zeigt, ob wirklich alles greift
+echo     2. /statcompass doctor   zeigt, ob wirklich alles greift
 echo.
 pause
