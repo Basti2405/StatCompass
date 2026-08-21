@@ -157,6 +157,55 @@ Quelltext und Fehlermeldungen: https://github.com/Basti2405/StatCompass
 
 ---
 
+## Changelog beim Datei-Upload
+
+Das Feld hat bei der **Erstveröffentlichung** eine andere Aufgabe als später:
+Dort kannte niemand das Addon vorher, ein Änderungsprotokoll liefe also ins
+Leere. Hinein gehört, was das Addon kann und wogegen es geprüft ist.
+
+### Für den ersten Upload (v1.3.0)
+
+```
+**First public release.**
+
+StatCompass shows where diminishing returns hit your secondary stats and how
+far you are from the next breakpoint.
+
+* One row per secondary stat: rating, the percentage that actually reaches you
+  after diminishing returns, and a bar showing progress inside the current
+  tier.
+* How much rating is left until the next penalty, and how much of it will
+  still count afterwards.
+* Curated breakpoints per specialization, each with its explanation, target
+  rating and the source it came from. Hover an entry to see them.
+* `/statcompass doctor` — a full self-diagnosis: interface version against
+  your client, every game function it needs, whether values arrive at all, and
+  whether its own maths still agrees with the game.
+* `/statcompass update` — import a plain-text data package to correct the
+  numbers without waiting for an addon update.
+
+Built and verified against **patch 12.1.0** (interface 120100). English and
+German; the interface follows your game client.
+
+Reads static character data only — no combat log, no cooldowns, no network
+traffic, no automation.
+```
+
+### Für spätere Uploads
+
+Sobald die Projekt-ID in der `.toc` steht, füllt der Packager dieses Feld
+selbst — er nimmt dafür `CHANGELOG.md` (so eingestellt über `manual-changelog`
+in `.pkgmeta`). Zu beachten: Er lädt die **ganze** Datei hoch, nicht nur den
+neuesten Abschnitt. Das ist verbreitet und in Ordnung, solange die Datei
+lesbar bleibt.
+
+Wer stattdessen je Release nur die Änderungen seit dem letzten Tag möchte:
+`manual-changelog` aus `.pkgmeta` entfernen, dann baut der Packager den
+Changelog aus den Commit-Texten seit dem vorherigen Tag. Dafür müssen die
+Commit-Texte allerdings gut genug sein, um vor Fremden zu bestehen.
+
+---
+
 ## Bildmaterial
 
 **Logo** — Pflicht, mindestens 400×400 px, PNG, 1:1. Vorlage: `docs/logo.svg`.
