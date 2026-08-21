@@ -13,10 +13,7 @@
 ## Version: 1.3.0
 ## IconTexture: Interface\Icons\INV_Misc_PocketWatch_01
 
-# StatKompassDB ist der alte Name aus der Zeit vor der Umbenennung. Er steht
-# hier nur noch, damit Core.lua den vorhandenen Stand einmalig uebernehmen
-# kann - in einer spaeteren Version faellt er ersatzlos weg.
-## SavedVariables: StatCompassDB, StatKompassDB
+## SavedVariables: StatCompassDB
 
 # ---------------------------------------------------------------------------
 # Angaben fuer die Verteilplattformen. Die Projekt-IDs traegt man nach dem

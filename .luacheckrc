@@ -77,10 +77,6 @@ globals = {
     "StatCompass",            -- Core.lua macht den Namensraum global erreichbar
     "StatCompassDB",          -- SavedVariables
 
-    -- Der alte Name. Core.lua liest ihn beim ersten Anmelden einmalig aus und
-    -- setzt ihn dann auf nil; er steht dafuer noch in der .toc. Faellt
-    -- zusammen mit der Uebernahme in einer spaeteren Version weg.
-    "StatKompassDB",
     "SLASH_STATCOMPASS1",
     "SLASH_STATCOMPASS2",
     "SLASH_STATCOMPASS3",

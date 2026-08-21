@@ -14,10 +14,12 @@ Ein deutscher Name findet außerhalb des deutschsprachigen Raums niemand. Der
 Ordner, die `.toc`, die gespeicherten Variablen und die Frame-Namen heißen
 jetzt durchgehend `StatCompass`.
 
-- **Der vorhandene Stand geht nicht verloren.** Beim ersten Anmelden übernimmt
-  das Addon `StatKompassDB` einmalig nach `StatCompassDB` — Fensterposition und
-  eingespieltes Update-Paket bleiben erhalten. Die alte Variable steht dafür
-  noch in der `.toc` und fällt in einer späteren Version weg.
+- **Gespeicherte Daten fangen neu an.** WoW benennt die SavedVariables-Datei
+  nach dem Addon-Ordner; mit dem neuen Namen liest es `StatCompass.lua` und
+  rührt die alte `StatKompass.lua` nicht mehr an. Betroffen sind die
+  Fensterposition und ein etwaiges Update-Paket. Wer ein Paket eingespielt
+  hatte, spielt es einmal neu ein — die eingebauten Daten sind davon
+  unberührt.
 - **Slash-Befehle:** `/statcompass` ist die neue Hauptform, `/stc` und `/sk`
   sind Kurzformen. Zwei Zeichen kollidieren leicht mit einem anderen Addon —
   wer zuletzt lädt, gewinnt. Deshalb steht in der Dokumentation überall der

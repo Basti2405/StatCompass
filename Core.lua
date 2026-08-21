@@ -139,14 +139,6 @@ loader:RegisterEvent("PLAYER_REGEN_ENABLED")     -- Kampf vorbei
 
 loader:SetScript("OnEvent", function(_, event, ...)
     if event == "PLAYER_LOGIN" then
-        -- Uebernahme aus der Zeit, als das Addon "StatKompass" hiess. Die alte
-        -- Variable steht dafuer noch in der .toc; sie kann dort in einer
-        -- spaeteren Version ersatzlos entfallen.
-        if StatKompassDB and not StatCompassDB then
-            StatCompassDB = StatKompassDB
-            StatKompassDB = nil
-        end
-
         StatCompassDB = StatCompassDB or {}
         applyDefaults(StatCompassDB, DB_DEFAULTS)
 
