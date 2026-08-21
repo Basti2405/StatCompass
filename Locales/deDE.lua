@@ -1,5 +1,11 @@
 -- Locales/deDE.lua - deutsche Texte
 --
+-- luacheck: max_line_length false
+--
+-- Ein Satz gehoert in EINE Zeile. Umbrueche mit ".." mitten im Text machen das
+-- Uebersetzen fehleranfaellig: Man sieht nicht mehr auf einen Blick, was am
+-- Ende dasteht, und ein vergessenes Leerzeichen an der Nahtstelle faellt erst
+-- im Spiel auf. Die Direktive oben gilt nur fuer diese Datei.
 -- ===========================================================================
 -- Ueberschreibt nur einzelne Schluessel; alles, was hier fehlt, bleibt bei der
 -- englischen Fassung aus Locales\enUS.lua.

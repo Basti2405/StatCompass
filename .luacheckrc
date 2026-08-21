@@ -101,14 +101,6 @@ files["Tests/logik-test.lua"] = {
     },
 }
 
--- Sprachdateien: Ein Satz gehoert in EINE Zeile. Umbrueche mit ".." mitten im
--- Text machen das Uebersetzen fehleranfaellig - man sieht nicht mehr auf einen
--- Blick, was am Ende dasteht, und ein vergessenes Leerzeichen an der Nahtstelle
--- faellt erst im Spiel auf. Deshalb hier keine Laengenbegrenzung.
-files["Locales"] = {
-    max_line_length = false,
-}
-
 files["Logik/ImportExport.lua"] = {
     -- Die Fehlermeldungen des Importeurs nennen Zeilennummer, Grund und den
     -- gelesenen Text in einem Stueck - auseinandergezogen liest sich das
