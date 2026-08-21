@@ -17,6 +17,13 @@ jobs:
     name: Paket bauen und veroeffentlichen
     runs-on: ubuntu-latest
 
+    # Der Standard-Token der Actions darf von Haus aus nur lesen. Zum Anlegen
+    # des GitHub-Releases braucht er Schreibrecht auf "contents" - fehlt es,
+    # baut der Packager das Paket fertig und scheitert erst beim Hochladen
+    # mit einem nackten "Error! (403)".
+    permissions:
+      contents: write
+
     steps:
       - uses: actions/checkout@v7
         with:
