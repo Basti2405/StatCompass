@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400" role="img" aria-label="StatCompass">
+  <title>StatCompass</title>
+  <!--
+    Vorlage fuer das Projektlogo auf CurseForge, Wago und WoWInterface.
+    Gefordert sind mindestens 400x400 px, PNG, 1:1 - dieses SVG hat genau
+    dieses Format und laesst sich verlustfrei exportieren:
+
+      Inkscape:   inkscape docs/logo.svg -w 400 -h 400 -o docs/logo.png
+      ImageMagick: magick -background none docs/logo.svg -resize 400x400 docs/logo.png
+      Ohne Werkzeug: in einem Browser oeffnen und als Bild speichern.
+
+    Die vier Speichenfarben sind dieselben wie die Balken im Addon
+    (SK.STAT_FARBEN in Daten/Ratings.lua): Kritisch, Tempo, Meisterschaft,
+    Vielseitigkeit. Die Striche auf dem Ring stehen fuer die
+    Abschwaechungsstufen - das Motiv des Addons in einem Bild.
+
+    Bewusst ohne Schrift: In der Addon-Liste wird das Logo auf 64 px
+    heruntergerechnet, dort waere jeder Text unlesbar.
+  -->
+  <defs>
+    <radialGradient id="grund" cx="50%" cy="38%" r="72%">
+      <stop offset="0%"   stop-color="#1d2b3a"/>
+      <stop offset="100%" stop-color="#0b1119"/>
+    </radialGradient>
+    <linearGradient id="nadel" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%"   stop-color="#ffffff" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.95"/>
+    </linearGradient>
+  </defs>
+
+  <circle cx="200" cy="200" r="196" fill="url(#grund)"/>
+  <circle cx="200" cy="200" r="196" fill="none" stroke="#33ccff" stroke-opacity="0.45" stroke-width="6"/>
+
+  <!-- Skalenring: die Abschwaechungsstufen -->
+  <g stroke="#5b7186" stroke-width="4" stroke-linecap="round">
+    <g transform="translate(200 200)">
+      <line y1="-168" y2="-150"/>
+      <line y1="-168" y2="-150" transform="rotate(30)"/>
+      <line y1="-168" y2="-150" transform="rotate(60)"/>
+      <line y1="-168" y2="-150" transform="rotate(90)"/>
+      <line y1="-168" y2="-150" transform="rotate(120)"/>
+      <line y1="-168" y2="-150" transform="rotate(150)"/>
+      <line y1="-168" y2="-150" transform="rotate(180)"/>
+      <line y1="-168" y2="-150" transform="rotate(210)"/>
+      <line y1="-168" y2="-150" transform="rotate(240)"/>
+      <line y1="-168" y2="-150" transform="rotate(270)"/>
+      <line y1="-168" y2="-150" transform="rotate(300)"/>
+      <line y1="-168" y2="-150" transform="rotate(330)"/>
+    </g>
+  </g>
+
+  <!-- Kompassrose: eine Speiche je Sekundaerwert -->
+  <g transform="translate(200 200)">
+    <!-- Kritischer Trefferwert - gelb, nach oben -->
+    <path d="M0,-140 L26,0 L0,26 L-26,0 Z" fill="#f2d140"/>
+    <!-- Tempo - gruen, nach rechts -->
+    <path d="M140,0 L0,26 L-26,0 L0,-26 Z" fill="#59d98c" opacity="0.95"/>
+    <!-- Meisterschaft - orange, nach unten -->
+    <path d="M0,140 L-26,0 L0,-26 L26,0 Z" fill="#d97340" opacity="0.95"/>
+    <!-- Vielseitigkeit - blau, nach links -->
+    <path d="M-140,0 L0,-26 L26,0 L0,26 Z" fill="#66a6ff" opacity="0.95"/>
+  </g>
+
+  <!-- Nadel: zeigt auf den naechsten Breakpoint -->
+  <g transform="translate(200 200) rotate(38)">
+    <path d="M0,-118 L14,22 L0,40 L-14,22 Z" fill="url(#nadel)"/>
+    <circle cx="0" cy="0" r="17" fill="#0b1119" stroke="#33ccff" stroke-width="5"/>
+    <circle cx="0" cy="0" r="5"  fill="#33ccff"/>
+  </g>
+</svg>

@@ -1,6 +1,71 @@
 # Änderungen
 
-Alle nennenswerten Änderungen an Stat-Kompass. Neueste zuerst.
+Alle nennenswerten Änderungen an StatCompass. Neueste zuerst.
+
+## 1.3.0 – 21.08.2026
+
+Die Fassung für die Veröffentlichung auf CurseForge, Wago und WoWInterface.
+Am Rechenkern ändert sich nichts — die Zahlen und ihre Herleitung sind
+unverändert.
+
+### Umbenannt: Stat-Kompass → StatCompass
+
+Ein deutscher Name findet außerhalb des deutschsprachigen Raums niemand. Der
+Ordner, die `.toc`, die gespeicherten Variablen und die Frame-Namen heißen
+jetzt durchgehend `StatCompass`.
+
+- **Der vorhandene Stand geht nicht verloren.** Beim ersten Anmelden übernimmt
+  das Addon `StatKompassDB` einmalig nach `StatCompassDB` — Fensterposition und
+  eingespieltes Update-Paket bleiben erhalten. Die alte Variable steht dafür
+  noch in der `.toc` und fällt in einer späteren Version weg.
+- **Slash-Befehle:** `/statcompass` ist die neue Hauptform, `/stc` und `/sk`
+  sind Kurzformen. Zwei Zeichen kollidieren leicht mit einem anderen Addon —
+  wer zuletzt lädt, gewinnt. Deshalb steht in der Dokumentation überall der
+  lange Name.
+
+### Neu: Deutsch und Englisch
+
+- **Alle Texte liegen in `Locales/`.** `enUS.lua` ist die Grundlage und enthält
+  jeden Schlüssel, `deDE.lua` überschreibt. Fehlt eine Übersetzung, erscheint
+  der englische Text — nie eine Lücke und nie ein Absturz.
+- **Die deutsche Fassung hat jetzt echte Umlaute.** Bisher stand überall
+  `ae/oe/ue`. In Kommentaren bleibt das so; was der Spieler liest, gehört
+  richtig geschrieben.
+- **Stat- und Spezialisierungsnamen kommen vom Spiel** (`STAT_CRITICAL_STRIKE`,
+  `GetSpecializationInfo`) statt aus einer eigenen Liste. Damit stimmen sie in
+  jeder Sprache und heißen genau so wie im Charakterfenster. Die
+  `specNamen`-Tabelle ist jetzt englisch und dient nur noch als Rückfall — und
+  ist erstmals tatsächlich als solcher verdrahtet.
+- **Zwei neue Prüfungen** in `Tests/logik-test.lua` fangen die typischen
+  Übersetzungsfehler ab: ein Schlüssel, den nur eine Sprache kennt, und eine
+  Übersetzung mit anderen Formatplatzhaltern als das Original — Letzteres wäre
+  im Spiel ein echter Laufzeitfehler.
+
+### Neu: die „info"-Texte sind endlich zu sehen
+
+Jeder gepflegte Breakpoint trägt seit jeher einen Erklärungstext und seine
+Quelle. Angezeigt wurde beides nie — die Listenzeilen waren nackte
+`FontString`s, und die können keine Mouseover-Ereignisse empfangen. Sie sind
+jetzt Frames: Wer mit der Maus über eine Zeile fährt, sieht die Erklärung, das
+Ziel-Rating, den eigenen Wert und die Quelle.
+
+### Neu: Paketierung
+
+- `.pkgmeta` legt fest, was ausgeliefert wird. Ohne diese Datei landeten
+  `tools/`, `Tests/` und die Entwicklungswerkzeuge im Paket.
+- `.github/workflows/release.yml`: Ein Tag `v*` baut das Paket und lädt es auf
+  die eingetragenen Plattformen. Vorher wird geprüft, dass der Tag zur Version
+  in der `.toc` passt.
+- Die `.toc` nennt jetzt Lizenz, Projektseite und Kategorie.
+
+### Behoben
+
+- **Privater Installationspfad in der ausgelieferten `.toc`.** Ein Kommentar
+  nannte Laufwerk und Build der Entwicklungsmaschine.
+- **Der Spezialisierungsname blieb leer,** wenn `GetSpecializationInfo` nur die
+  ID lieferte. Jetzt greift der Rückfall aus `Daten/Breakpoints.lua`.
+- `tools/backup.sh` hatte ein festes Ziel fest verdrahtet; es kommt jetzt aus
+  `SK_BACKUP_DIR` (Standard `~/Backup/StatCompass`).
 
 ## 1.2.0 – 18.08.2026
 
@@ -62,7 +127,7 @@ erst extern, dann im Spiel:
 - maxroll.gg und die Icy-Veins-Guides zu 12.1 nennen dieselben Grenzen. Die in
   12.1 geänderten „Diminishing Returns" betreffen die Kontrolleffekte im PvP,
   nicht die Sekundärwerte.
-- `/sk doctor` am 18.08.2026 gegen **12.1.0 (Build 69382, Interface 120100)**,
+- `/statcompass doctor` am 18.08.2026 gegen **12.1.0 (Build 69382, Interface 120100)**,
   Gleichgewicht-Druide auf Stufe 90: alle zehn Schnittstellen gefunden, und bei
   allen vier Werten stimmen eigene Rechnung und Spiel überein — Kritisch
   670 → 14,57 %, Tempo 620 → 14,09 %, Meisterschaft 929 → 20,20 %,
@@ -73,11 +138,11 @@ unter der ersten Abschwächungsstufe (1320 bzw. 1380/1620 Rating). Im Spiel
 gegengerechnet ist damit nur der lineare Bereich. Die Stufen darüber sind durch
 die veröffentlichten Tabellen belegt und durch 24 Testfälle abgesichert, aber
 noch nicht gegen einen ausgerüsteten Charakter geprüft. Wer das nachholen will:
-`/sk doctor` auf einem Charakter mit mehr als 1320 Tempo.
+`/statcompass doctor` auf einem Charakter mit mehr als 1320 Tempo.
 
 ### Behoben
 
-- **Metadaten der eingebauten Daten waren veraltet.** `/sk doctor` meldete
+- **Metadaten der eingebauten Daten waren veraltet.** `/statcompass doctor` meldete
   „Patch 12.0.7, Stand 2026-08-17", obwohl die Zahlen gegen 12.1 geprüft sind.
   Jetzt 12.1.0.
 
@@ -113,7 +178,7 @@ Die Fassung, mit der das Addon auf **Midnight 12.1.0** läuft.
   Addon nichts) und entbehrlich (ohne `GetHaste` fehlt eine Zeile im
   Mouseover). Sonst würde eine Kosmetik-Lücke die echten Fehler zudecken.
 
-- **`/sk doctor`** – vollständige Selbstdiagnose im Spiel: Interface-Nummer
+- **`/statcompass doctor`** – vollständige Selbstdiagnose im Spiel: Interface-Nummer
   gegen den laufenden Build, welche Schnittstelle in welcher Fassung gefunden
   wurde, Rohwerte pro Sekundärwert, Vergleich der eigenen Rechnung mit der des
   Spiels, Zustand der gespeicherten Daten. Schließt mit einem Gesamturteil.
@@ -136,7 +201,7 @@ Die Fassung, mit der das Addon auf **Midnight 12.1.0** läuft.
 
 - Die Rating-Werte in `Daten/Ratings.lua` (crit 46, haste 44, mastery 46,
   versa 54) stammen aus Patch 12.0.x. Ob sie in 12.1.0 noch stimmen, lässt
-  sich nur im Spiel prüfen: `/sk doctor`. Bei Abweichung nennt die Ausgabe
+  sich nur im Spiel prüfen: `/statcompass doctor`. Bei Abweichung nennt die Ausgabe
   direkt den Rechenweg für den neuen Wert.
 
 ## 1.0.0 – 17.08.2026

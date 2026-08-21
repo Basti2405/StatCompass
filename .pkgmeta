@@ -1,0 +1,41 @@
+# .pkgmeta - Bauanleitung fuer den BigWigs-Packager
+#
+# Ohne diese Datei landet das GESAMTE Repository im Auslieferungspaket -
+# einschliesslich der Werkzeuge, der Tests und (falls vorhanden) des
+# gebauten Lua unter .werkzeuge/ mit seinen Binaerdateien. Das ist bei
+# CurseForge ein sicherer Ablehnungsgrund.
+#
+# Was hier NICHT steht, kommt mit ins Paket. README, LICENSE und CHANGELOG
+# bleiben deshalb bewusst drin: Sie gehoeren zu dem, was der Spieler bekommt.
+#
+# Ausprobieren, ohne irgendetwas hochzuladen:
+#   curl -s https://raw.githubusercontent.com/BigWigsMods/packager/master/release.sh | bash -s -- -d -o
+# Danach in .release/ nachsehen, was tatsaechlich im Paket liegt.
+
+package-as: StatCompass
+
+# Es gibt keine eingebetteten Bibliotheken - also auch kein "nolib"-Paket.
+enable-nolib-creation: no
+
+# Der Changelog kommt aus der gepflegten Datei statt aus den Commit-Texten.
+manual-changelog:
+    filename: CHANGELOG.md
+    markup-type: markdown
+
+ignore:
+    # Entwicklungswerkzeuge und alles, was nur im Repository Sinn ergibt.
+    - .github
+    - .werkzeuge
+    - Tests
+    - tools
+    - PROMPTS.md
+    - .luacheckrc
+    - .editorconfig
+    - .gitignore
+    - .pkgmeta
+
+    # Material fuer die Projektseiten der Plattformen - Logovorlage und die
+    # Beschreibungstexte. Gehoert nicht in den AddOns-Ordner des Spielers.
+    # README.en.md dagegen schon: Das Addon spricht zwei Sprachen, die
+    # Beschreibung dazu also auch.
+    - docs

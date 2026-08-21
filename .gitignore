@@ -13,7 +13,7 @@ lua-5.1.5/
 # SavedVariables gehoeren zum Charakter, nicht zum Addon.
 *.lua.bak
 SavedVariables/
-StatKompassDB.lua
+StatCompassDB.lua
 
 # ---------------------------------------------------------------------------
 # Entwicklungsumgebung
@@ -34,4 +34,7 @@ desktop.ini
 # Verpackte Fassungen fuer die Weitergabe
 # ---------------------------------------------------------------------------
 /build/
-StatKompass-*.zip
+StatCompass-*.zip
+
+# Der Packager legt hier das gebaute Paket ab (siehe .pkgmeta).
+/.release/

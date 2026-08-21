@@ -1,0 +1,58 @@
+name: Release
+
+# Ausgeloest durch einen Versions-Tag, z. B.:
+#   git tag v1.3.0 && git push origin v1.3.0
+#
+# Der Packager baut daraus ein ZIP, ersetzt die Platzhalter, haengt den
+# Changelog an und laedt das Ergebnis auf die eingetragenen Plattformen.
+# Ohne hinterlegte Zugangsdaten passiert dort nichts - das GitHub-Release
+# entsteht trotzdem.
+on:
+  push:
+    tags: [ 'v*' ]
+  workflow_dispatch:
+
+jobs:
+  release:
+    name: Paket bauen und veroeffentlichen
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Der Packager braucht die vollstaendige Historie: Er liest daraus
+          # den vorherigen Tag, um den Changelog abzugrenzen.
+          fetch-depth: 0
+
+      # Der haeufigste Fehler beim Veroeffentlichen ist ein Tag, der nicht zu
+      # der Version in der .toc passt - im Spiel steht dann eine andere Nummer
+      # als auf der Downloadseite. Lieber hier abbrechen als hinterher ein
+      # falsch beschriftetes Paket zurueckziehen.
+      - name: Tag gegen die Version in der .toc pruefen
+        run: |
+          tag="${GITHUB_REF#refs/tags/}"
+          toc=$(grep -m1 '^## Version:' StatCompass.toc | sed 's/.*: *//' | tr -d '\r')
+          echo "Tag: $tag / .toc: $toc"
+          if [ "$tag" != "v$toc" ]; then
+            echo "::error::Tag '$tag' und Version '$toc' in StatCompass.toc passen nicht zusammen (erwartet: v$toc)."
+            exit 1
+          fi
+
+      # Dieselben Tests wie in ci.yml. Ein Release soll nicht gruen aussehen,
+      # nur weil niemand mehr hingeschaut hat.
+      - name: Bauwerkzeuge
+        run: sudo apt-get update && sudo apt-get install -y build-essential
+
+      - name: Tests
+        run: ./tools/test.sh
+
+      # Die Projekt-IDs stehen in StatCompass.toc (X-Curse-Project-ID,
+      # X-Wago-ID, X-WoWI-ID) - der Packager liest sie von dort. Solange sie
+      # dort auskommentiert sind, entsteht nur ein GitHub-Release.
+      - name: Packen und hochladen
+        uses: BigWigsMods/packager@v2
+        env:
+          GITHUB_OAUTH:   ${{ secrets.GITHUB_TOKEN }}
+          CF_API_KEY:     ${{ secrets.CF_API_KEY }}
+          WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
+          WOWI_API_TOKEN: ${{ secrets.WOWI_API_TOKEN }}

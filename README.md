@@ -1,4 +1,4 @@
-# Stat-Kompass
+# StatCompass
 
 Ein WoW-Addon, das die **Breakpoints der Sekundärwerte** anzeigt: wo die
 Abschwächung (Diminishing Returns) zuschlägt, wie weit man davon entfernt ist
@@ -7,12 +7,22 @@ und was der nächste Ratingpunkt noch bringt.
 Bewusst klein gehalten — es macht eine Sache, die aber vollständig.
 
 Gebaut und geprüft für **Midnight, Patch 12.1.0** (Interface `120100`).
+Oberfläche auf **Deutsch und Englisch**; die Sprache richtet sich nach dem
+Spielclient. *(English readers: see [README.en.md](README.en.md).)*
 
 ---
 
 ## Installation
 
-**Empfohlen — Junction.** Das Addon bleibt an seinem Platz, WoW sieht es
+**Über einen Addon-Manager.** StatCompass liegt auf CurseForge, Wago und
+WoWInterface — dort suchen, installieren, fertig. Updates kommen dann von
+selbst.
+
+**Von Hand.** Das ZIP von der [Releases-Seite](https://github.com/Basti2405/StatCompass/releases)
+herunterladen und den enthaltenen Ordner `StatCompass` nach
+`…\World of Warcraft\_retail_\Interface\AddOns\` entpacken.
+
+**Zum Entwickeln — Junction.** Das Addon bleibt an seinem Platz, WoW sieht es
 trotzdem. Nur eine Fassung, die gepflegt werden muss:
 
 ```
@@ -21,27 +31,26 @@ tools\junction.cmd
 
 Doppelklick genügt, Administratorrechte braucht es nicht. Das Skript sucht die
 WoW-Installation, weigert sich, einen echten Ordner zu überschreiben, und sagt
-am Ende, wie es weitergeht.
-
-**Von Hand.** Den Ordner `StatKompass` nach
-`…\World of Warcraft\_retail_\Interface\AddOns\` kopieren.
+am Ende, wie es weitergeht. `tools\` liegt nur im Repository und ist nicht Teil
+des ausgelieferten Pakets.
 
 **Danach im Spiel — und das ist der eigentliche Funktionstest:**
 
 ```
 /reload
-/sk doctor
+/statcompass doctor
 ```
 
-`/sk doctor` beantwortet die Frage „läuft das wirklich?" vollständig: Passt die
+`/statcompass doctor` beantwortet die Frage „läuft das wirklich?" vollständig: Passt die
 Interface-Nummer zum Build, wurde jede benötigte WoW-Funktion gefunden (und in
 welcher Fassung), kommen überhaupt Werte an, stimmt die eigene Rechnung mit
 der des Spiels. Am Ende steht ein Gesamturteil.
 
-> **Hinweis bei OneDrive:** Liegt das Addon in einem OneDrive-Ordner, kann
-> „Speicherplatz freigeben" die `.lua`-Dateien zu Platzhaltern machen. WoW kann
-> die nicht lesen und lädt das Addon dann kommentarlos nicht. Im Explorer per
-> Rechtsklick auf den Ordner → *Immer auf diesem Gerät behalten*.
+> **Hinweis bei Cloud-Ordnern:** Liegt das Addon in einem synchronisierten
+> Ordner (OneDrive, Dropbox, Google Drive), kann „Speicherplatz freigeben" die
+> `.lua`-Dateien zu Platzhaltern machen. WoW kann die nicht lesen und lädt das
+> Addon dann kommentarlos nicht. Im Explorer per Rechtsklick auf den Ordner →
+> *Immer auf diesem Gerät behalten*.
 
 ---
 
@@ -49,15 +58,20 @@ der des Spiels. Am Ende steht ein Gesamturteil.
 
 | Befehl | Wirkung |
 |---|---|
-| `/sk` | Fenster zeigen/verstecken |
-| `/sk doctor` | vollständige Selbstdiagnose — bei Problemen zuerst |
-| `/sk update` | Update-Paket einspielen oder exportieren |
-| `/sk test` | prüft, ob die Daten noch zum aktuellen Patch passen |
-| `/sk id` | zeigt die ID der aktuellen Spezialisierung |
-| `/sk reset` | Update-Paket löschen, Fenster zentrieren |
-| `/sk help` | Übersicht im Chat |
+| `/statcompass` | Fenster zeigen/verstecken |
+| `/statcompass doctor` | vollständige Selbstdiagnose — bei Problemen zuerst |
+| `/statcompass update` | Update-Paket einspielen oder exportieren |
+| `/statcompass test` | prüft, ob die Daten noch zum aktuellen Patch passen |
+| `/statcompass id` | zeigt die ID der aktuellen Spezialisierung |
+| `/statcompass reset` | Update-Paket löschen, Fenster zentrieren |
+| `/statcompass help` | Übersicht im Chat |
 
-`/sk test` vergleicht nur die Zahlen. `/sk doctor` prüft zusätzlich die
+Kurzformen: **`/stc`** und **`/sk`** tun dasselbe. In der Dokumentation steht
+überall der lange Name, weil zwei Zeichen leicht mit einem anderen Addon
+kollidieren — wer zuletzt lädt, gewinnt. Sollte `/sk` bei dir belegt sein,
+funktioniert `/statcompass` trotzdem.
+
+`/statcompass test` vergleicht nur die Zahlen. `/statcompass doctor` prüft zusätzlich die
 Verdrahtung zum Spiel — er ist die richtige Adresse, wenn etwas *gar nicht*
 erscheint oder überall Nullen stehen.
 
@@ -108,7 +122,7 @@ Es gibt zwei Wege. Der zweite ist der bequeme.
 `Daten/Breakpoints.lua` öffnen und einen Eintrag ergänzen:
 
 ```lua
-[63] = {                          -- ID über /sk id herausfinden
+[63] = {                          -- ID über /statcompass id herausfinden
     {
         id     = "feuer-tick",    -- stabile Kennung, damit Updates ersetzen können
         stat   = "haste",
@@ -126,7 +140,7 @@ als man erwartet (100 % Tempo braucht 6600 Rating, nicht 4400).
 
 ### Weg 2 — Update-Paket einspielen (ohne Dateizugriff)
 
-`/sk update`, Text einfügen, „Einspielen". Das Paket landet in den
+`/statcompass update`, Text einfügen, „Einspielen". Das Paket landet in den
 SavedVariables und **überlebt eine Neuinstallation des Addons**.
 
 ```
@@ -152,7 +166,7 @@ Ein Eintrag mit derselben `id` **ersetzt** einen vorhandenen, statt daneben zu
 stehen. Deshalb sollte jeder Eintrag eine bekommen.
 
 Fehler werden mit Zeilennummer gemeldet und das Paket **nicht** übernommen —
-ein Tippfehler kann also nichts kaputt machen. `/sk reset` stellt jederzeit den
+ein Tippfehler kann also nichts kaputt machen. `/statcompass reset` stellt jederzeit den
 eingebauten Stand wieder her.
 
 Einen fertigen Prompt zum Erzeugen solcher Pakete gibt es in `PROMPTS.md`.
@@ -161,7 +175,7 @@ Einen fertigen Prompt zum Erzeugen solcher Pakete gibt es in `PROMPTS.md`.
 
 ## Wenn ein neuer Patch kommt
 
-1. `/sk doctor` im Spiel eingeben. Die Ausgabe sagt, was zu tun ist.
+1. `/statcompass doctor` im Spiel eingeben. Die Ausgabe sagt, was zu tun ist.
 2. Steht überall „ok", passt alles — nichts zu tun.
 3. Bei abweichenden Zahlen: neues „Rating pro Prozent" ausrechnen (Rating im
    Charakterfenster geteilt durch den Prozentwert; unter 30 % ist das Verhältnis
@@ -193,7 +207,7 @@ Deshalb greift keine Datei mehr direkt auf eine WoW-Funktion zu. Alles läuft
 
 - sucht für jeden Zweck die erste vorhandene Fassung aus einer Kandidatenliste
   (neue Schreibweise zuerst — die überlebt den nächsten Patch),
-- merkt sich, welche sie genommen hat, damit `/sk doctor` es zeigen kann,
+- merkt sich, welche sie genommen hat, damit `/statcompass doctor` es zeigen kann,
 - fängt Fehler beim Aufruf ab, damit ein gesperrter Wert nicht das ganze Addon
   mitreißt,
 - unterscheidet **unverzichtbar** von **entbehrlich**: ohne `GetCombatRating`
@@ -240,31 +254,64 @@ Spendenaufrufe, kein anstößiger Inhalt, keine Belastung der Server.
 
 ---
 
+## Sprachen
+
+Alle Texte liegen in `Locales/`. `enUS.lua` ist die Grundlage und enthält jeden
+Schlüssel; jede weitere Datei überschreibt nur, was sie übersetzt — fehlt ein
+Schlüssel, erscheint der englische Text statt einer Lücke.
+
+Drei Dinge übersetzt das Addon **nicht** selbst, weil das Spiel es besser kann:
+
+- die Namen der Sekundärwerte (`STAT_CRITICAL_STRIKE` und Geschwister),
+- die Namen der Spezialisierungen (`GetSpecializationInfo`),
+- Zahlen- und Prozentformate außer dem Tausendertrennzeichen.
+
+**Eine Sprache ergänzen:** `Locales/enUS.lua` nach `Locales/xxXX.lua` kopieren,
+den Kopf auf das eigene Kürzel ändern, übersetzen, in `StatCompass.toc`
+eintragen. `tools/test.sh` prüft anschließend, dass keine Schlüssel erfunden
+wurden und dass die Formatplatzhalter (`%s`, `%d`) zum Original passen — ein
+fehlender Platzhalter ist im Spiel ein echter Laufzeitfehler.
+
+Die Texte der gepflegten Breakpoints stehen als Klartext in
+`Daten/Breakpoints.lua` (englisch) und werden über die Schlüssel
+`BP_<id>_TITLE` und `BP_<id>_INFO` übersetzt.
+
+---
+
 ## Aufbau
 
 ```
-StatKompass/
-├── StatKompass.toc         Ladereihenfolge
+StatCompass/
+├── StatCompass.toc         Ladereihenfolge und Metadaten
 ├── Core.lua                Ereignisse, SavedVariables, Slash-Befehle
+├── Locales/
+│   ├── enUS.lua            Grundlage — enthält jeden Textschlüssel
+│   └── deDE.lua            deutsche Fassung
 ├── Daten/
 │   ├── Ratings.lua         Rating pro Prozent + Abschwächungsstufen
 │   └── Breakpoints.lua     die gepflegte Tabelle  ← hier ergänzt man
 ├── Logik/
-│   ├── Kompat.lua          Brücke zu den WoW-Schnittstellen  ← lädt zuerst
+│   ├── Kompat.lua          Brücke zu den WoW-Schnittstellen
 │   ├── Datenpaket.lua      verbindet eingebaute Daten mit Update-Paket
 │   ├── Rechner.lua         die Mathematik (fragt WoW nichts, rein rechnerisch)
 │   ├── Spielerwerte.lua    liest Charakterwerte — nur über Kompat.lua
 │   ├── ImportExport.lua    Update-Format „SK1" lesen und schreiben
-│   └── Diagnose.lua        sammelt und zeigt, was /sk doctor ausgibt
+│   └── Diagnose.lua        sammelt und zeigt, was /statcompass doctor ausgibt
 ├── UI/
 │   ├── Fenster.lua         Hauptfenster
 │   └── UpdateDialog.lua    Import-/Exportfenster
+│
+│   ── ab hier: nur im Repository, nicht im ausgelieferten Paket ──
+├── .pkgmeta                was ins Paket kommt und was nicht
+├── .github/workflows/
+│   ├── ci.yml              Tests bei jedem Push
+│   └── release.yml         Tag → Paket → CurseForge, Wago, WoWInterface
 ├── Tests/
-│   └── logik-test.lua      140 Prüfungen, laufen ohne WoW
+│   └── logik-test.lua      163 Prüfungen, laufen ohne WoW
 └── tools/
     ├── test.sh             Syntax + .toc-Abgleich + Logiktests
     ├── junction.cmd        Verknüpfung in den AddOns-Ordner
-    └── backup.sh           Sicherung aufs RAID (Dateien + Git-Historie)
+    └── backup.sh           Sicherung (Dateien + Git-Historie)
 ```
 
 Zwei Entwurfsentscheidungen tragen den Rest:
@@ -320,7 +367,47 @@ Abgedeckt sind unter anderem:
   auflösen lässt
 
 **Nicht getestet** ist die Oberfläche — Frames, Balken und Tooltips lassen sich
-nur im Spiel prüfen. Dafür gibt es `/sk doctor`.
+nur im Spiel prüfen. Dafür gibt es `/statcompass doctor`.
+
+---
+
+## Veröffentlichen
+
+Ein Release entsteht aus einem Git-Tag. `.github/workflows/release.yml` baut
+daraus das Paket und lädt es hoch:
+
+```
+# 1. Version in StatCompass.toc hochziehen und CHANGELOG.md ergänzen
+# 2. committen
+git tag v1.3.0
+git push origin v1.3.0
+```
+
+Der Workflow bricht ab, wenn Tag und `## Version` in der `.toc` nicht
+zusammenpassen — sonst stünde im Spiel eine andere Nummer als auf der
+Downloadseite. Danach laufen die Tests, dann packt
+[BigWigsMods/packager](https://github.com/BigWigsMods/packager) nach den Regeln
+in `.pkgmeta`.
+
+**Was vorher einmal eingerichtet sein muss:**
+
+| Wo | Was |
+|---|---|
+| CurseForge / Wago / WoWInterface | Projekt anlegen, Projekt-ID in `StatCompass.toc` eintragen (`X-Curse-Project-ID`, `X-Wago-ID`, `X-WoWI-ID`) |
+| GitHub → Settings → Secrets → Actions | `CF_API_KEY`, `WAGO_API_TOKEN`, `WOWI_API_TOKEN` |
+
+Fehlt ein Zugang, überspringt der Packager die betreffende Plattform und
+erzeugt trotzdem das GitHub-Release.
+
+**Vorher nachsehen, was im Paket landet** — ohne irgendetwas hochzuladen:
+
+```
+curl -s https://raw.githubusercontent.com/BigWigsMods/packager/master/release.sh | bash -s -- -d
+ls .release/StatCompass/
+```
+
+Achtung: Der Packager kopiert nur Dateien, die Git kennt. Eine neue Datei, die
+noch nicht mindestens gestaged ist, fehlt im Paket — kommentarlos.
 
 ---
 
@@ -330,11 +417,12 @@ nur im Spiel prüfen. Dafür gibt es `/sk doctor`.
 ./tools/backup.sh
 ```
 
-Legt unter `/mnt/m/Backup/StatKompass/<Datum>/` ab:
+Legt unter `$SK_BACKUP_DIR/<Datum>/` ab (Standard: `~/Backup/StatCompass`,
+abweichendes Ziel als erstes Argument oder über die Umgebungsvariable):
 
 - den Dateistand als Archiv **und** ausgepackt zum Hineinschauen
 - ein **Git-Bundle** — eine einzelne Datei mit der kompletten Historie:
-  `git clone StatKompass-<datum>.bundle StatKompass` holt alles zurück
+  `git clone StatCompass-<datum>.bundle StatCompass` holt alles zurück
 - `PRUEFSUMMEN.txt` (SHA-256), um später zu erkennen, ob etwas verrottet ist
 - `INFO.txt` mit Commit, Zweig und den Befehlen zum Zurückholen
 
@@ -351,7 +439,7 @@ anderes Ziel geht als Argument: `./tools/backup.sh /pfad/ziel`.
   Tempo, 1380/1840/2300 für Kritisch und Meisterschaft, 1620/2160/2700 für
   Vielseitigkeit. Die Änderung an den *Diminishing Returns* in 12.1 betrifft
   die Abklingzeit von Kontrolleffekten im PvP, nicht die Sekundärwerte.
-  Im Spiel bestätigt am 18.08.2026 gegen 12.1.0 (Build 69382): `/sk doctor`
+  Im Spiel bestätigt am 18.08.2026 gegen 12.1.0 (Build 69382): `/statcompass doctor`
   meldet bei allen vier Werten Übereinstimmung. Der Testcharakter lag noch
   unter der ersten Abschwächungsstufe — gegengerechnet ist damit der lineare
   Bereich, die Stufen darüber sind bislang nur durch Tabelle und Tests belegt.
