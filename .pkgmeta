@@ -28,7 +28,6 @@ ignore:
     - .werkzeuge
     - Tests
     - tools
-    - PROMPTS.md
     - .luacheckrc
     - .editorconfig
     - .gitignore
@@ -38,4 +37,8 @@ ignore:
     # Beschreibungstexte. Gehoert nicht in den AddOns-Ordner des Spielers.
     # README.en.md dagegen schon: Das Addon spricht zwei Sprachen, die
     # Beschreibung dazu also auch.
+    #
+    # PROMPTS.md steht hier bewusst NICHT mehr: Die Datei ist gar nicht mehr
+    # versioniert (siehe .gitignore), und der Packager kopiert ohnehin nur,
+    # was Git kennt.
     - docs

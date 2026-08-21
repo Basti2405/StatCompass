@@ -169,7 +169,10 @@ Fehler werden mit Zeilennummer gemeldet und das Paket **nicht** übernommen —
 ein Tippfehler kann also nichts kaputt machen. `/statcompass reset` stellt jederzeit den
 eingebauten Stand wieder her.
 
-Einen fertigen Prompt zum Erzeugen solcher Pakete gibt es in `PROMPTS.md`.
+Ein Paket lässt sich von Hand schreiben — das Format ist oben vollständig
+beschrieben und in `Logik/ImportExport.lua` noch einmal im Detail. Wer es
+lieber erzeugen lässt, kommt mit den Angaben aus diesem Abschnitt und einem
+aktuellen Guide auch ohne Vorlage aus.
 
 ---
 
