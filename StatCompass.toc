@@ -20,7 +20,7 @@
 # Anlegen des jeweiligen Projekts nach - der Packager liest sie von hier.
 # ---------------------------------------------------------------------------
 ## X-License: MIT
-## X-Website: https://github.com/Basti2405/StatCompass
+## X-Website: https://basti2405.github.io/StatCompass/
 ## X-Category: Character Advancement
 # ## X-Curse-Project-ID:
 # ## X-Wago-ID:
