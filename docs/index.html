@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="de" data-lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StatCompass — Abschwächung deiner Sekundärwerte</title>
+<meta name="description" content="WoW-Addon: zeigt, wo die Abschwächung deine Sekundärwerte trifft und wie weit es bis zum nächsten Breakpoint ist.">
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* --------------------------------------------------------------------------
+   StatCompass — Projektseite
+
+   Die Farben sind nicht ausgedacht: Es sind die vier Balkenfarben aus
+   Daten/Ratings.lua und das Blau, mit dem sich das Addon im Chat meldet.
+   Die Seite soll aussehen wie das, was sie beschreibt.
+   -------------------------------------------------------------------------- */
+:root {
+  --grund:      #0b1119;
+  --panel:      #121d28;
+  --panel-hoch: #1d2b3a;
+  --linie:      #22384c;
+  --ink:        #dce7f2;
+  --ink-leise:  #7b90a5;
+  --akzent:     #33ccff;
+
+  --krit:  #f2d140;
+  --tempo: #59d98c;
+  --meist: #d97340;
+  --viels: #66a6ff;
+
+  --display: "IBM Plex Sans Condensed", "Arial Narrow", sans-serif;
+  --body:    "IBM Plex Sans", system-ui, sans-serif;
+  --mono:    "IBM Plex Mono", ui-monospace, monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  margin: 0;
+  background: var(--grund);
+  color: var(--ink);
+  font: 400 17px/1.65 var(--body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Sprachumschaltung. Das Addon spricht zwei Sprachen, die Beschreibung
+   dazu also auch. Ohne JavaScript bleibt Deutsch stehen. */
+:root[data-lang="de"] [lang="en"] { display: none !important; }
+:root[data-lang="en"] [lang="de"] { display: none !important; }
+
+a { color: var(--akzent); }
+a:focus-visible, button:focus-visible {
+  outline: 2px solid var(--akzent);
+  outline-offset: 3px;
+}
+
+.huelle { width: min(1080px, 100% - 3rem); margin-inline: auto; }
+
+/* ---------- Kopf ---------- */
+.kopf {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 1.5rem 0; border-bottom: 1px solid var(--linie);
+}
+.kopf img { width: 40px; height: 40px; }
+.wortmarke {
+  font: 700 1.35rem/1 var(--display);
+  letter-spacing: .01em; margin-right: auto;
+}
+.wortmarke b { color: var(--akzent); font-weight: 700; }
+
+.kopf-links { display: flex; align-items: center; gap: 1.25rem; }
+.kopf-links a { color: var(--ink-leise); text-decoration: none; font-size: .9rem; }
+.kopf-links a:hover { color: var(--ink); }
+
+.sprache {
+  background: none; border: 1px solid var(--linie); color: var(--ink-leise);
+  font: 500 .78rem/1 var(--mono); letter-spacing: .08em;
+  padding: .5rem .7rem; border-radius: 3px; cursor: pointer;
+}
+.sprache:hover { border-color: var(--akzent); color: var(--ink); }
+
+/* ---------- Aufmacher ---------- */
+.aufmacher { padding: 4.5rem 0 3rem; }
+
+.augenbraue {
+  font: 500 .76rem/1 var(--mono); letter-spacing: .16em;
+  text-transform: uppercase; color: var(--ink-leise); margin: 0 0 1.25rem;
+}
+
+h1 {
+  font: 700 clamp(2.4rem, 6vw, 4rem)/1.04 var(--display);
+  letter-spacing: -.015em; margin: 0 0 1.25rem; max-width: 20ch;
+}
+h1 em { font-style: normal; color: var(--akzent); }
+
+.vorspann {
+  font-size: 1.15rem; color: var(--ink-leise);
+  max-width: 58ch; margin: 0 0 2.5rem;
+}
+
+/* ---------- Die Kurve: das Kernstueck ---------- */
+.instrument {
+  background: var(--panel);
+  border: 1px solid var(--linie);
+  border-radius: 4px;
+  padding: 1.5rem 1.5rem 1rem;
+}
+.instrument-kopf {
+  display: flex; flex-wrap: wrap; gap: .5rem 1.5rem;
+  align-items: baseline; margin-bottom: 1rem;
+}
+.instrument-titel {
+  font: 600 .95rem/1 var(--display); letter-spacing: .04em;
+  text-transform: uppercase; margin: 0;
+}
+.instrument-hinweis {
+  font: 400 .82rem/1.4 var(--body); color: var(--ink-leise); margin: 0;
+}
+
+.kurve { display: block; width: 100%; height: auto; }
+
+.gitter    { stroke: var(--linie); stroke-width: 1; }
+.achse     { stroke: #33475c; stroke-width: 1.5; }
+.achstext  { font: 400 11px var(--mono); fill: var(--ink-leise); }
+.ideal     { stroke: #44607a; stroke-width: 1.5; stroke-dasharray: 3 5; fill: none; }
+.echt      { stroke: var(--akzent); stroke-width: 2.5; fill: none; stroke-linejoin: round; }
+.verlust   { fill: var(--akzent); opacity: .07; }
+.kerbe     { stroke: #46607a; stroke-width: 1; stroke-dasharray: 2 4; }
+.kerbtext  { font: 400 10px var(--mono); fill: #5e788f; }
+
+.marke { cursor: pointer; }
+.marke circle.ring { fill: var(--grund); stroke-width: 2.5; }
+.marke:hover circle.ring, .marke:focus-visible circle.ring { r: 9; }
+.marke text { font: 500 11px var(--mono); }
+
+.legende {
+  display: flex; flex-wrap: wrap; gap: .4rem 1.5rem;
+  margin: 1rem 0 0; padding: .9rem 0 0; border-top: 1px solid var(--linie);
+  list-style: none;
+}
+.legende li {
+  display: flex; align-items: center; gap: .5rem;
+  font: 400 .84rem/1 var(--mono); color: var(--ink-leise);
+}
+.legende i { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.legende b { color: var(--ink); font-weight: 500; }
+
+/* ---------- Abschnitte ---------- */
+section { padding: 4rem 0; border-top: 1px solid var(--linie); }
+
+h2 {
+  font: 700 clamp(1.5rem, 3vw, 2rem)/1.15 var(--display);
+  letter-spacing: -.01em; margin: 0 0 .75rem;
+}
+.abschnitt-vor { color: var(--ink-leise); max-width: 60ch; margin: 0 0 2.5rem; }
+
+.raster { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(255px, 1fr)); }
+
+.karte {
+  background: var(--panel); border: 1px solid var(--linie);
+  border-radius: 4px; padding: 1.5rem;
+}
+.karte h3 {
+  font: 600 1.05rem/1.3 var(--body); margin: 0 0 .6rem;
+}
+.karte p { margin: 0; color: var(--ink-leise); font-size: .96rem; }
+.karte code {
+  font: 500 .87em var(--mono); color: var(--akzent);
+  background: #0d1620; padding: .1em .35em; border-radius: 3px;
+}
+
+/* Befehlsliste */
+.befehle { border: 1px solid var(--linie); border-radius: 4px; overflow: hidden; }
+.befehl {
+  display: grid; grid-template-columns: minmax(190px, auto) 1fr;
+  gap: 1.5rem; padding: .95rem 1.4rem; align-items: baseline;
+}
+.befehl + .befehl { border-top: 1px solid var(--linie); }
+.befehl:nth-child(odd) { background: var(--panel); }
+.befehl code {
+  font: 500 .9rem var(--mono); color: var(--krit); white-space: nowrap;
+}
+.befehl span { color: var(--ink-leise); font-size: .95rem; }
+
+/* Regel-Kasten */
+.regel {
+  background: var(--panel-hoch);
+  border-left: 3px solid var(--tempo);
+  border-radius: 0 4px 4px 0;
+  padding: 1.5rem 1.75rem;
+}
+.regel h3 { margin: 0 0 .6rem; font: 600 1.05rem var(--body); }
+.regel p { margin: 0; color: #a9bccd; }
+.regel p + p { margin-top: .7rem; }
+
+/* Installieren */
+.schritte { counter-reset: schritt; list-style: none; padding: 0; margin: 0; display: grid; gap: 1rem; }
+.schritte li {
+  counter-increment: schritt;
+  display: grid; grid-template-columns: 2rem 1fr; gap: 1rem;
+  align-items: baseline;
+}
+.schritte li::before {
+  content: counter(schritt);
+  font: 500 .85rem var(--mono); color: var(--akzent);
+  border: 1px solid var(--linie); border-radius: 50%;
+  width: 2rem; height: 2rem; display: grid; place-items: center;
+}
+.schritte p { margin: 0; color: var(--ink-leise); }
+.schritte strong { color: var(--ink); font-weight: 600; }
+
+.knopf {
+  display: inline-block; margin-top: 2rem;
+  background: var(--akzent); color: #06121a;
+  font: 600 .95rem var(--body); text-decoration: none;
+  padding: .8rem 1.5rem; border-radius: 3px;
+}
+.knopf:hover { background: #6bdcff; }
+
+footer {
+  padding: 2.5rem 0 4rem; border-top: 1px solid var(--linie);
+  color: var(--ink-leise); font-size: .88rem;
+  display: flex; flex-wrap: wrap; gap: .5rem 2rem; align-items: baseline;
+}
+footer a { color: var(--ink-leise); }
+
+@media (max-width: 640px) {
+  .befehl { grid-template-columns: 1fr; gap: .3rem; }
+  .kopf { flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+
+<div class="huelle">
+
+  <header class="kopf">
+    <img src="logo.svg" alt="">
+    <span class="wortmarke">Stat<b>Compass</b></span>
+    <nav class="kopf-links">
+      <a href="#was"><span lang="de">Was es zeigt</span><span lang="en">What it shows</span></a>
+      <a href="#installieren"><span lang="de">Installieren</span><span lang="en">Install</span></a>
+      <a href="https://github.com/Basti2405/StatCompass">GitHub</a>
+      <button class="sprache" id="sprache" type="button" aria-label="Sprache wechseln / Switch language">EN</button>
+    </nav>
+  </header>
+
+  <div class="aufmacher">
+    <p class="augenbraue">
+      <span lang="de">World-of-Warcraft-Addon · Midnight 12.1.0</span>
+      <span lang="en">World of Warcraft addon · Midnight 12.1.0</span>
+    </p>
+
+    <h1>
+      <span lang="de">Du kaufst Rating. Angekommen ist <em>weniger</em>.</span>
+      <span lang="en">You bought rating. What arrived is <em>less</em>.</span>
+    </h1>
+
+    <p class="vorspann">
+      <span lang="de">Ab einer bestimmten Höhe zählt jeder weitere Punkt eines Sekundärwerts
+        nur noch anteilig. StatCompass zeigt, wo diese Grenzen liegen, wie weit du
+        von der nächsten entfernt bist und was dein nächster Punkt noch wert ist.</span>
+      <span lang="en">Past a certain point, every further point of a secondary stat only counts
+        in part. StatCompass shows where those thresholds sit, how far you are from
+        the next one, and what your next point is still worth.</span>
+    </p>
+
+    <!-- ------------------------------------------------------------------
+         Das Kernstueck: die Abschwaechungskurve.
+
+         Gestrichelt, was man bezahlt hat. Durchgezogen, was ankommt. Die
+         Flaeche dazwischen ist der Verlust - und genau der ist der Grund,
+         warum es dieses Addon gibt.
+         ------------------------------------------------------------------ -->
+    <div class="instrument">
+      <div class="instrument-kopf">
+        <h2 class="instrument-titel">
+          <span lang="de">Abschwächung der Sekundärwerte</span>
+          <span lang="en">Diminishing returns on secondary stats</span>
+        </h2>
+        <p class="instrument-hinweis">
+          <span lang="de">Gestrichelt: ohne Abschwächung. Durchgezogen: was ankommt.</span>
+          <span lang="en">Dashed: without diminishing returns. Solid: what arrives.</span>
+        </p>
+      </div>
+
+      <svg class="kurve" viewBox="0 0 800 420" role="img"
+           aria-label="Kurve der Abschwächung: bis 30 Prozent zählt jeder Punkt voll, danach fällt der Wert stufenweise auf 50 Prozent.">
+
+        <!-- Verlustflaeche zwischen Ideal und Wirklichkeit -->
+        <path class="verlust" d="M56,376 L776,16 L776,89.8 L650,121.3 L542,153.7 L479,175.75 L407,204.55 L326,241 L56,376 Z"/>
+
+        <!-- Gitter -->
+        <g class="gitter">
+          <line x1="56" y1="286" x2="776" y2="286"/>
+          <line x1="56" y1="196" x2="776" y2="196"/>
+          <line x1="56" y1="106" x2="776" y2="106"/>
+        </g>
+
+        <!-- Achsen -->
+        <g class="achse">
+          <line x1="56" y1="16" x2="56" y2="376"/>
+          <line x1="56" y1="376" x2="776" y2="376"/>
+        </g>
+
+        <g class="achstext">
+          <text x="46" y="380" text-anchor="end">0</text>
+          <text x="46" y="290" text-anchor="end">20</text>
+          <text x="46" y="200" text-anchor="end">40</text>
+          <text x="46" y="110" text-anchor="end">60</text>
+          <text x="56" y="398">0 %</text>
+          <text x="326" y="398" text-anchor="middle">30 %</text>
+          <text x="542" y="398" text-anchor="middle">54 %</text>
+          <text x="776" y="398" text-anchor="end">80 %</text>
+        </g>
+
+        <!-- Grenzen der Abschwaechungsstufen -->
+        <g class="kerbe">
+          <line x1="326" y1="241" x2="326" y2="376"/>
+          <line x1="407" y1="204.55" x2="407" y2="376"/>
+          <line x1="479" y1="175.75" x2="479" y2="376"/>
+          <line x1="542" y1="153.7" x2="542" y2="376"/>
+          <line x1="650" y1="121.3" x2="650" y2="376"/>
+        </g>
+
+        <!-- Ohne Abschwaechung -->
+        <path class="ideal" d="M56,376 L776,16"/>
+
+        <!-- Mit Abschwaechung -->
+        <path class="echt" d="M56,376 L326,241 L407,204.55 L479,175.75 L542,153.7 L650,121.3 L776,89.8"/>
+
+        <!-- Wo die vier Werte gerade stehen -->
+        <g class="marke" tabindex="0" role="img" aria-label="Vielseitigkeit: nächster Punkt zählt zu 100 Prozent">
+          <circle class="ring" cx="254" cy="277" r="6.5" stroke="#66a6ff"/>
+          <text x="254" y="262" text-anchor="middle" fill="#66a6ff">100 %</text>
+        </g>
+        <g class="marke" tabindex="0" role="img" aria-label="Kritischer Trefferwert: nächster Punkt zählt zu 90 Prozent">
+          <circle class="ring" cx="362" cy="224.8" r="6.5" stroke="#f2d140"/>
+          <text x="362" y="210" text-anchor="middle" fill="#f2d140">90 %</text>
+        </g>
+        <g class="marke" tabindex="0" role="img" aria-label="Tempo: nächster Punkt zählt zu 80 Prozent">
+          <circle class="ring" cx="434" cy="193.75" r="6.5" stroke="#59d98c"/>
+          <text x="434" y="179" text-anchor="middle" fill="#59d98c">80 %</text>
+        </g>
+        <g class="marke" tabindex="0" role="img" aria-label="Meisterschaft: nächster Punkt zählt zu 70 Prozent">
+          <circle class="ring" cx="515" cy="163.15" r="6.5" stroke="#d97340"/>
+          <text x="515" y="148" text-anchor="middle" fill="#d97340">70 %</text>
+        </g>
+      </svg>
+
+      <ul class="legende">
+        <li><i style="background:#f2d140"></i><span lang="de">Kritischer Trefferwert</span><span lang="en">Critical strike</span></li>
+        <li><i style="background:#59d98c"></i><span lang="de">Tempo</span><span lang="en">Haste</span></li>
+        <li><i style="background:#d97340"></i><span lang="de">Meisterschaft</span><span lang="en">Mastery</span></li>
+        <li><i style="background:#66a6ff"></i><span lang="de">Vielseitigkeit</span><span lang="en">Versatility</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <section id="was">
+    <h2><span lang="de">Was im Fenster steht</span><span lang="en">What the window shows</span></h2>
+    <p class="abschnitt-vor">
+      <span lang="de">Eine Zeile je Sekundärwert. Kein Diagramm zum Deuten, keine Punktzahl —
+        die Zahl, die du brauchst, und daneben, was sie bedeutet.</span>
+      <span lang="en">One row per secondary stat. No chart to interpret, no score —
+        the number you need, and next to it what it means.</span>
+    </p>
+
+    <div class="raster">
+      <div class="karte">
+        <h3><span lang="de">Rating und wirksamer Prozentwert</span><span lang="en">Rating and effective percentage</span></h3>
+        <p><span lang="de">Was auf deiner Ausrüstung steht — und was davon nach der Abschwächung
+          tatsächlich bei dir ankommt.</span>
+          <span lang="en">What your gear says — and how much of it actually reaches you
+          after diminishing returns.</span></p>
+      </div>
+      <div class="karte">
+        <h3><span lang="de">Ein Balken innerhalb der Stufe</span><span lang="en">A bar inside the tier</span></h3>
+        <p><span lang="de">Er füllt sich <em>innerhalb</em> der aktuellen Abschwächungsstufe. Auf einen
+          Blick: wie nah die nächste Verschlechterung ist.</span>
+          <span lang="en">It fills up <em>inside</em> the current tier. At a glance:
+          how close the next penalty is.</span></p>
+      </div>
+      <div class="karte">
+        <h3><span lang="de">Gepflegte Breakpoints</span><span lang="en">Curated breakpoints</span></h3>
+        <p><span lang="de">Die Schwellen deiner Spezialisierung, an denen sich wirklich etwas ändert.
+          Mouseover zeigt Erklärung, Ziel-Rating, deinen Wert und die Quelle der Zahl.</span>
+          <span lang="en">The thresholds for your specialization where something actually changes.
+          Hover for the explanation, the target rating, your value and where the number came from.</span></p>
+      </div>
+      <div class="karte">
+        <h3><span lang="de">Es veraltet nicht still</span><span lang="en">It does not go stale quietly</span></h3>
+        <p><span lang="de">Die meisten Wert-Addons brechen nach einem Patch lautlos: Die Zahlen bleiben,
+          das Spiel ändert sich. <code>/statcompass test</code> vergleicht die eigene
+          Rechnung mit dem Spiel und meldet die Abweichung.</span>
+          <span lang="en">Most stat addons break silently after a patch: the numbers stay, the game
+          changes. <code>/statcompass test</code> compares its own maths against the
+          game and reports the drift.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span lang="de">Befehle</span><span lang="en">Commands</span></h2>
+    <p class="abschnitt-vor">
+      <span lang="de">Der lange Name steht in der Dokumentation, weil kurze Befehle gern von
+        anderen Addons belegt sind. <code>/stc</code> und <code>/sk</code> tun dasselbe.</span>
+      <span lang="en">The long name is the documented one, because short commands tend to be
+        taken by other addons. <code>/stc</code> and <code>/sk</code> do the same.</span>
+    </p>
+
+    <div class="befehle">
+      <div class="befehl"><code>/statcompass</code>
+        <span lang="de">Fenster anzeigen oder verstecken</span><span lang="en">show or hide the window</span></div>
+      <div class="befehl"><code>/statcompass doctor</code>
+        <span lang="de">vollständige Selbstdiagnose — bei Problemen zuerst</span><span lang="en">full self-diagnosis — check this first</span></div>
+      <div class="befehl"><code>/statcompass test</code>
+        <span lang="de">prüfen, ob die Daten noch zum Patch passen</span><span lang="en">check whether the data still matches the patch</span></div>
+      <div class="befehl"><code>/statcompass update</code>
+        <span lang="de">neue Zahlen als Textpaket einspielen, ohne Addon-Update</span><span lang="en">load new numbers as a text package, without an addon update</span></div>
+      <div class="befehl"><code>/statcompass id</code>
+        <span lang="de">die eigene Spezialisierungs-ID anzeigen</span><span lang="en">show your specialization ID</span></div>
+      <div class="befehl"><code>/statcompass reset</code>
+        <span lang="de">Update-Paket löschen, Fenster zentrieren</span><span lang="en">discard the update package, recentre the window</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span lang="de">Zu den Midnight-Regeln</span><span lang="en">On the Midnight addon rules</span></h2>
+    <div class="regel">
+      <h3><span lang="de">Es liest ausschließlich statische Charakterdaten.</span><span lang="en">It reads static character data only.</span></h3>
+      <p><span lang="de">Die eigenen Ausrüstungswerte und die Spezialisierung. Kein Kampflog, keine
+        Abklingzeiten, keine Auren, kein Netzverkehr, keine Telemetrie, keine Automatik.
+        Es sagt dir nie, welchen Knopf du drücken sollst.</span>
+        <span lang="en">Your own gear ratings and your specialization. No combat log, no cooldowns,
+        no auras, no network traffic, no telemetry, no automation. It never tells you
+        which button to press.</span></p>
+      <p><span lang="de">Im Kampf wird bewusst gar nicht erst aktualisiert — Ausrüstungswerte ändern
+        sich dort ohnehin praktisch nicht.</span>
+        <span lang="en">It deliberately does not even recalculate while you are in combat — gear
+        ratings hardly change there anyway.</span></p>
+    </div>
+  </section>
+
+  <section id="installieren">
+    <h2><span lang="de">Installieren</span><span lang="en">Install</span></h2>
+    <ol class="schritte">
+      <li><p><span lang="de">Das Archiv herunterladen und entpacken.</span>
+             <span lang="en">Download the archive and unpack it.</span></p></li>
+      <li><p><span lang="de">Den Ordner <strong>StatCompass</strong> nach
+             <code>World of Warcraft\_retail_\Interface\AddOns\</code> legen.</span>
+             <span lang="en">Put the <strong>StatCompass</strong> folder into
+             <code>World of Warcraft\_retail_\Interface\AddOns\</code>.</span></p></li>
+      <li><p><span lang="de">Im Spiel <code>/statcompass</code> tippen. Wenn etwas nicht stimmt,
+             sagt <code>/statcompass doctor</code>, was.</span>
+             <span lang="en">Type <code>/statcompass</code> in game. If something is off,
+             <code>/statcompass doctor</code> says what.</span></p></li>
+    </ol>
+    <a class="knopf" href="https://github.com/Basti2405/StatCompass/releases">
+      <span lang="de">Zu den Veröffentlichungen</span><span lang="en">Go to releases</span>
+    </a>
+  </section>
+
+  <footer>
+    <span>StatCompass · MIT</span>
+    <span><span lang="de">von</span><span lang="en">by</span> Basti2405</span>
+    <a href="https://github.com/Basti2405/StatCompass"><span lang="de">Quelltext und Fehlermeldungen</span><span lang="en">Source and issues</span></a>
+  </footer>
+
+</div>
+
+<script>
+/* Sprachumschaltung. Bewusst winzig: Der Zustand haengt an einem Attribut
+   am Wurzelelement, die CSS-Regeln oben erledigen den Rest. Ohne
+   JavaScript bleibt die Seite auf Deutsch stehen und ist vollstaendig. */
+(function () {
+  var wurzel = document.documentElement;
+  var knopf  = document.getElementById("sprache");
+
+  function setzen(sprache) {
+    wurzel.dataset.lang = sprache;
+    wurzel.lang = sprache;
+    knopf.textContent = sprache === "de" ? "EN" : "DE";
+    try { localStorage.setItem("statcompass-sprache", sprache); } catch (e) {}
+  }
+
+  var gemerkt;
+  try { gemerkt = localStorage.getItem("statcompass-sprache"); } catch (e) {}
+  if (!gemerkt) {
+    gemerkt = (navigator.language || "de").slice(0, 2) === "de" ? "de" : "en";
+  }
+  setzen(gemerkt);
+
+  knopf.addEventListener("click", function () {
+    setzen(wurzel.dataset.lang === "de" ? "en" : "de");
+  });
+})();
+</script>
+
+</body>
+</html>
